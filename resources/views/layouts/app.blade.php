@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ app()->getLocale() }}" data-bs-theme="light">
+<html lang="{{ app()->getLocale() }}" data-bs-theme="{{ session('theme', auth()->user()?->theme_preference ?? 'light') }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -31,6 +31,9 @@
             align-items: center;
             justify-content: center;
         }
+        body {
+            transition: background-color 0.2s ease, color 0.2s ease;
+        }
     </style>
 </head>
 <body class="d-flex flex-column min-vh-100">
@@ -47,41 +50,66 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ route('home') }}"><i class="bi bi-house"></i> Home</a>
+                        <a class="nav-link" href="{{ route('home') }}"><i class="bi bi-house"></i> {{ __('messages.home') }}</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ route('noticias.index') }}"><i class="bi bi-newspaper"></i> Notícias</a>
+                        <a class="nav-link" href="{{ route('noticias.index') }}"><i class="bi bi-newspaper"></i> {{ __('messages.news') }}</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ route('jogos.index') }}"><i class="bi bi-calendar3"></i> Jogos</a>
+                        <a class="nav-link" href="{{ route('jogos.index') }}"><i class="bi bi-calendar3"></i> {{ __('messages.games') }}</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ route('estatisticas.index') }}"><i class="bi bi-bar-chart"></i> Estatísticas</a>
+                        <a class="nav-link" href="{{ route('estatisticas.index') }}"><i class="bi bi-bar-chart"></i> {{ __('messages.stats') }}</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ route('donations.index') }}"><span style="font-size:1.1em;">&#x1F3C0;</span> Apoiador</a>
+                        <a class="nav-link" href="{{ route('donations.index') }}"><span style="font-size:1.1em;">&#x1F3C0;</span> {{ __('messages.donations') }}</a>
                     </li>
-
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-translate"></i> {{ app()->getLocale() === 'en' ? 'Language' : 'Idioma' }}
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li>
+                                <form method="POST" action="{{ route('locale') }}">
+                                    @csrf
+                                    <input type="hidden" name="locale" value="pt">
+                                    <button type="submit" class="dropdown-item">🇧🇷 Português</button>
+                                </form>
+                            </li>
+                            <li>
+                                <form method="POST" action="{{ route('locale') }}">
+                                    @csrf
+                                    <input type="hidden" name="locale" value="en">
+                                    <button type="submit" class="dropdown-item">🇺🇸 English</button>
+                                </form>
+                            </li>
+                        </ul>
+                    </li>
                     @auth
                         @if(auth()->user()->role === 'admin')
                             <li class="nav-item">
-                                <a class="nav-link" href="{{ route('admin.dashboard') }}"><i class="bi bi-gear"></i> Admin</a>
+                                <a class="nav-link" href="{{ route('admin.dashboard') }}"><i class="bi bi-gear"></i> {{ __('messages.admin') }}</a>
                             </li>
                         @endif
                         <li class="nav-item">
                             <form method="POST" action="{{ route('logout') }}" class="d-inline">
                                 @csrf
-                                <button type="submit" class="btn btn-outline-light btn-sm mt-1">Sair</button>
+                                <button type="submit" class="btn btn-outline-light btn-sm mt-1">{{ __('messages.logout') }}</button>
                             </form>
                         </li>
                     @else
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ route('login') }}"><i class="bi bi-box-arrow-in-right"></i> Login</a>
+                            <a class="nav-link" href="{{ route('login') }}"><i class="bi bi-box-arrow-in-right"></i> {{ __('messages.login') }}</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ route('register') }}"><i class="bi bi-person-plus"></i> Registrar</a>
+                            <a class="nav-link" href="{{ route('register') }}"><i class="bi bi-person-plus"></i> {{ __('messages.register') }}</a>
                         </li>
                     @endauth
+                    <li class="nav-item ms-lg-4">
+                        <button type="button" id="themeToggle" class="btn btn-link nav-link px-2" aria-label="Alternar modo escuro" title="Alternar modo escuro">
+                            <i class="bi bi-moon-stars-fill"></i>
+                        </button>
+                    </li>
                 </ul>
             </div>
         </div>
@@ -105,6 +133,34 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        const themeToggle = document.getElementById('themeToggle');
+        const themeLabel = document.getElementById('themeLabel');
+        const savedTheme = localStorage.getItem('theme') || document.documentElement.dataset.bsTheme || 'light';
+
+        function applyTheme(theme) {
+            document.documentElement.dataset.bsTheme = theme;
+            localStorage.setItem('theme', theme);
+            if (themeLabel) themeLabel.textContent = theme === 'dark' ? 'Modo claro' : 'Modo escuro';
+            const icon = themeToggle?.querySelector('i');
+            if (icon) icon.className = theme === 'dark' ? 'bi bi-sun-fill' : 'bi bi-moon-stars-fill';
+        }
+
+        applyTheme(savedTheme);
+
+        themeToggle?.addEventListener('click', () => {
+            const theme = document.documentElement.dataset.bsTheme === 'dark' ? 'light' : 'dark';
+            applyTheme(theme);
+            fetch('{{ route('theme') }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({ theme })
+            });
+        });
+
         function togglePassword(id, btn) {
             var input = document.getElementById(id);
             var icon = btn.querySelector('i');

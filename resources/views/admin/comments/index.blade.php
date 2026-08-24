@@ -43,10 +43,9 @@
                                             </button>
                                         </form>
                                     @endif
-                                    <form method="POST" action="{{ route('admin.comments.destroy', $comment) }}" class="d-inline"
+                                    <form method="POST" action="{{ route('admin.comments.delete', $comment) }}" class="d-inline"
                                         onsubmit="return confirm('Tem certeza que deseja excluir este comentário?')">
                                         @csrf
-                                        @method('DELETE')
                                         <button type="submit" class="btn btn-sm btn-outline-danger" title="Excluir">
                                             <i class="bi bi-trash"></i>
                                         </button>

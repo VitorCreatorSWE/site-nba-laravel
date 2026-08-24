@@ -26,16 +26,6 @@ class Team extends Model
         'logo_url',
     ];
 
-    public function players()
-    {
-        return $this->hasMany(Player::class);
-    }
-
-    public function playerHistory()
-    {
-        return $this->hasMany(PlayerTeamHistory::class);
-    }
-
     public function homeGames()
     {
         return $this->hasMany(Game::class, 'home_team_id');

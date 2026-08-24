@@ -8,19 +8,19 @@
         <div class="col-lg-8">
             <div class="mb-3">
                 <a href="{{ route('analises.index') }}" class="text-decoration-none">
-                    <i class="bi bi-arrow-left"></i> Voltar para Análises
+                    <i class="bi bi-arrow-left"></i> {{ __('messages.back') }} {{ __('messages.analysis') }}
                 </a>
             </div>
 
             <article>
-                <span class="badge bg-info mb-3">Análise</span>
+                <span class="badge bg-info mb-3">{{ __('messages.analysis') }}</span>
 
                 <h1 class="mb-3">{{ $post->title }}</h1>
 
                 <div class="d-flex align-items-center text-muted mb-4 flex-wrap gap-3">
                     <span><i class="bi bi-person"></i> {{ $post->user->name }}</span>
                     <span><i class="bi bi-calendar"></i> {{ $post->published_at->format('d/m/Y H:i') }}</span>
-                    <span><i class="bi bi-eye"></i> {{ $post->views_count }} visualizações</span>
+                    <span><i class="bi bi-eye"></i> {{ $post->views_count }} {{ __('messages.views') }}</span>
                 </div>
 
                 @if($post->cover_image)
@@ -35,7 +35,7 @@
             <hr class="my-5">
 
             <section>
-                <h3><i class="bi bi-chat-dots"></i> Comentários ({{ $post->approvedComments->count() }})</h3>
+                <h3><i class="bi bi-chat-dots"></i> {{ __('messages.comments_count') }} ({{ $post->approvedComments->count() }})</h3>
 
                 @auth
                     <form method="POST" action="{{ route('comments.store', $post) }}" class="mb-4">
@@ -43,11 +43,11 @@
                         <div class="mb-3">
                             <textarea name="content" class="form-control" rows="3" placeholder="Escreva seu comentário..." required>{{ old('content') }}</textarea>
                         </div>
-                        <button type="submit" class="btn btn-info">Enviar comentário</button>
+                        <button type="submit" class="btn btn-info">{{ __('messages.send_comment') }}</button>
                     </form>
                 @else
                     <div class="alert alert-info">
-                        <a href="{{ route('login') }}">Faça login</a> para comentar.
+                        <a href="{{ route('login') }}">{{ __('messages.login') }}</a> {{ __('messages.login_to_comment') }}
                     </div>
                 @endauth
 
@@ -62,7 +62,7 @@
                         </div>
                     </div>
                 @empty
-                    <p class="text-muted">Nenhum comentário ainda. Seja o primeiro!</p>
+                    <p class="text-muted">{{ __('messages.no_comments_first') }}</p>
                 @endforelse
             </section>
         </div>
@@ -70,7 +70,7 @@
         <div class="col-lg-4">
             <div class="card mb-4">
                 <div class="card-header bg-info">
-                    <h5 class="mb-0 text-white"><i class="bi bi-graph-up"></i> Mais Análises</h5>
+                    <h5 class="mb-0 text-white"><i class="bi bi-graph-up"></i> {{ __('messages.analysis') }}</h5>
                 </div>
                 <div class="card-body">
                     @forelse($relatedPosts as $related)
@@ -89,7 +89,7 @@
                             </div>
                         </div>
                     @empty
-                        <p class="text-muted mb-0">Nenhuma análise relacionada.</p>
+                        <p class="text-muted mb-0">{{ __('messages.no_analysis') }}</p>
                     @endforelse
                 </div>
             </div>

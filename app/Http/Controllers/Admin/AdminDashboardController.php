@@ -9,7 +9,6 @@ use App\Models\User;
 use App\Models\Donation;
 use App\Models\Comment;
 use App\Models\Team;
-use App\Models\Player;
 
 class AdminDashboardController extends Controller
 {
@@ -25,7 +24,6 @@ class AdminDashboardController extends Controller
             'pending_comments' => Comment::where('approved', false)->count(),
             'total_donations' => Donation::where('status', 'confirmed')->sum('amount'),
             'total_teams' => Team::count(),
-            'total_players' => Player::count(),
         ];
 
         $recentPosts = Post::with('user')

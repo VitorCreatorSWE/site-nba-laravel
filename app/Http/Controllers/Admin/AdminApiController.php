@@ -4,9 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Team;
-use App\Models\Player;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Http;
 
 class AdminApiController extends Controller
 {
@@ -35,35 +33,6 @@ class AdminApiController extends Controller
         return response()->json($teams);
     }
 
-    public function searchPlayers(Request $request)
-    {
-        $search = $request->input('q', '');
-        $teamId = $request->input('team_id');
-
-        if (strlen($search) < 2) {
-            return response()->json([]);
-        }
-
-        $query = Player::where('full_name', 'like', "%{$search}%");
-
-        if ($teamId) {
-            $query->where('team_id', $teamId);
-        }
-
-        $players = $query->limit(10)
-            ->get()
-            ->map(fn($player) => [
-                'id' => $player->id,
-                'full_name' => $player->full_name,
-                'position' => $player->position,
-                'jersey_number' => $player->jersey_number,
-                'team_name' => $player->team->name ?? '-',
-                'photo' => $player->photo,
-            ]);
-
-        return response()->json($players);
-    }
-
     public function getTeamInfo(Request $request)
     {
         $teamId = $request->input('team_id');
@@ -84,12 +53,6 @@ class AdminApiController extends Controller
             'arena_name' => $team->arena_name,
             'arena_capacity' => $team->arena_capacity,
             'logo' => $team->logo,
-            'players' => $team->players->map(fn($p) => [
-                'id' => $p->id,
-                'full_name' => $p->full_name,
-                'position' => $p->position,
-                'jersey_number' => $p->jersey_number,
-            ]),
         ]);
     }
 

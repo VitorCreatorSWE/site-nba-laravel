@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Login')
+@section('title', __('messages.login'))
 
 @section('content')
 <div class="min-vh-100 d-flex align-items-center justify-content-center" style="background: linear-gradient(rgba(0,0,0,0.25), rgba(0,0,0,0.25)), url('{{ asset('images/ZwTSd.jpg') }}') center/cover no-repeat;">
@@ -28,7 +28,7 @@
                         @csrf
 
                         <div class="mb-3">
-                            <label for="email" class="form-label">E-mail</label>
+                            <label for="email" class="form-label">{{ __('messages.email') }}</label>
                             <input type="email"
                                    name="email"
                                    id="email"
@@ -42,7 +42,7 @@
                         </div>
 
                         <div class="mb-3">
-                            <label for="password" class="form-label">Senha</label>
+                            <label for="password" class="form-label">{{ __('messages.password') }}</label>
                             <div class="input-group">
                                 <input type="password"
                                        name="password"
@@ -63,12 +63,12 @@
                                    name="remember"
                                    id="remember"
                                    class="form-check-input">
-                            <label for="remember" class="form-check-label">Lembrar-me</label>
+                            <label for="remember" class="form-check-label">{{ __('messages.remember_me') }}</label>
                         </div>
 
                         <button type="submit" class="btn btn-primary w-100">
                             <i class="bi bi-box-arrow-in-right me-2"></i>
-                            Entrar
+                            {{ __('messages.login') }}
                         </button>
                     </form>
 
@@ -76,7 +76,7 @@
 
                     <p class="text-center mb-0">
                         Não tem conta?
-                        <a href="{{ route('register') }}">Registre-se</a>
+                        <a href="{{ route('register') }}">{{ __('messages.register') }}</a>
                     </p>
                 </div>
             </div>

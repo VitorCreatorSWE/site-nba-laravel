@@ -1,12 +1,12 @@
 @extends('layouts.app')
 
-@section('title', $team->name . ' - Estatísticas - Basq NBA')
+@section('title', $team->name . ' - ' . __('messages.stats') . ' - Basq NBA')
 
 @section('content')
 <div class="container py-5">
     <div class="mb-3">
         <a href="{{ route('estatisticas.index') }}" class="text-decoration-none">
-            <i class="bi bi-arrow-left"></i> Voltar para Times
+            <i class="bi bi-arrow-left"></i> {{ __('messages.back_to_teams') }}
         </a>
     </div>
 
@@ -21,21 +21,21 @@
                     <div class="row mt-4">
                         <div class="col-4">
                             <div class="h3 mb-0 text-success">{{ $gamesWon }}</div>
-                            <small class="text-muted">Vitórias</small>
+                            <small class="text-muted">{{ __('messages.wins') }}</small>
                         </div>
                         <div class="col-4">
                             <div class="h3 mb-0 text-danger">{{ $gamesTotal - $gamesWon }}</div>
-                            <small class="text-muted">Derrotas</small>
+                            <small class="text-muted">{{ __('messages.losses') }}</small>
                         </div>
                         <div class="col-4">
                             <div class="h3 mb-0 text-primary">{{ $winRate }}%</div>
-                            <small class="text-muted">Aproveitamento</small>
+                            <small class="text-muted">{{ __('messages.win_rate') }}</small>
                         </div>
                     </div>
                     @if($team->championships_count > 0)
-                        <div class="mt-3 text-muted">{{ $team->championships_count }} {{ $team->championships_count > 1 ? 'Títulos' : 'Título' }}</div>
+                        <div class="mt-3 text-muted">{{ $team->championships_count }} {{ $team->championships_count > 1 ? __('messages.titles') : __('messages.title') }}</div>
                     @else
-                        <div class="mt-3 text-danger">0 Títulos</div>
+                        <div class="mt-3 text-danger">0 {{ __('messages.titles') }}</div>
                     @endif
                 </div>
             </div>
@@ -46,80 +46,21 @@
                 </div>
                 <div class="card-body">
                     <ul class="list-unstyled mb-0">
-                        <li class="mb-2"><strong>Divisão:</strong> {{ $team->division }}</li>
-                        <li class="mb-2"><strong>Arena:</strong> {{ $team->arena_name ?? '-' }}</li>
-                        <li class="mb-2"><strong>Capacidade:</strong> {{ $team->arena_capacity ? number_format($team->arena_capacity) : '-' }}</li>
-                        <li class="mb-2"><strong>Fundação:</strong> {{ $team->founded_year ?? '-' }}</li>
-                        <li><strong>Títulos:</strong> {{ $team->championships_count }}</li>
+                        <li class="mb-2"><strong>{{ __('messages.division') }}:</strong> {{ $team->division }}</li>
+                        <li class="mb-2"><strong>{{ __('messages.arena') }}:</strong> {{ $team->arena_name ?? '-' }}</li>
+                        <li class="mb-2"><strong>{{ __('messages.capacity') }}:</strong> {{ $team->arena_capacity ? number_format($team->arena_capacity) : '-' }}</li>
+                        <li class="mb-2"><strong>{{ __('messages.founded') }}:</strong> {{ $team->founded_year ?? '-' }}</li>
+                        <li><strong>{{ __('messages.titles') }}:</strong> {{ $team->championships_count }}</li>
                     </ul>
                 </div>
             </div>
         </div>
 
         <div class="col-lg-8">
-            <div class="card mb-4 shadow">
-                <div class="card-header">
-                    <h5 class="mb-0"><i class="bi bi-people"></i> Elenco Atual</h5>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        @forelse($currentPlayers as $player)
-                            <div class="col-md-6 mb-3">
-                                <div class="d-flex align-items-center">
-                                    <a href="{{ route('estatisticas.player', $player) }}">
-                                        <img src="{{ $player->photo }}" alt="{{ $player->full_name }}" class="rounded-circle me-3" style="width:50px;height:50px;object-fit:cover;">
-                                    </a>
-                                    <div>
-                                        <a href="{{ route('estatisticas.player', $player) }}" class="text-decoration-none fw-bold">{{ $player->full_name }}</a>
-                                        <br>
-                                        <small class="text-muted">{{ $player->position }} • #{{ $player->jersey_number ?? '-' }}</small>
-                                    </div>
-                                </div>
-                            </div>
-                        @empty
-                            <div class="col-12 text-muted">Nenhum jogador encontrado.</div>
-                        @endforelse
-                    </div>
-                </div>
-            </div>
-
-            @if($formerPlayers->count() > 0)
-                <div class="card shadow mb-4">
-                    <div class="card-header">
-                        <h5 class="mb-0"><i class="bi bi-clock-history"></i> Ex-Jogadores</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-sm">
-                                <thead>
-                                    <tr>
-                                        <th>Jogador</th>
-                                        <th>Período</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach($formerPlayers as $player)
-                                        <tr>
-                                            <td>
-                                                <a href="{{ route('estatisticas.player', $player) }}" class="text-decoration-none">{{ $player->full_name }}</a>
-                                            </td>
-                                            <td>
-                                                {{ $player->teamHistory->first()?->start_date->format('Y') }} -
-                                                {{ $player->teamHistory->first()?->end_date?->format('Y') ?? 'Presente' }}
-                                            </td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            @endif
-
             @if(isset($recentGames) && $recentGames->count() > 0)
                 <div class="card shadow">
                     <div class="card-header">
-                        <h5 class="mb-0"><i class="bi bi-journal-text"></i> Análises dos Últimos Jogos</h5>
+                        <h5 class="mb-0"><i class="bi bi-journal-text"></i> {{ __('messages.recent_game_analysis') }}</h5>
                     </div>
                     <div class="card-body">
                         @foreach($recentGames as $item)

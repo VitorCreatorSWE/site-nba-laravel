@@ -58,7 +58,7 @@ class Post extends Model
 
     public function approvedComments()
     {
-        return $this->comments()->where('approved', true);
+        return $this->comments();
     }
 
     public function isPublished(): bool
@@ -69,13 +69,54 @@ class Post extends Model
     public function getCategoryLabelAttribute(): string
     {
         return match($this->category) {
-            'noticia' => 'Notícia',
-            'jogo' => 'Jogo',
-            'estatistica' => 'Estatística',
-            'recente' => 'Notícia Recente',
-            'analise' => 'Análise',
+            'noticia' => __('messages.noticia'),
+            'jogo' => __('messages.game'),
+            'estatistica' => __('messages.statistics'),
+            'recente' => __('messages.recent_news'),
+            'analise' => __('messages.analysis'),
             default => $this->category,
         };
+    }
+
+    public function getTitleAttribute($value): string
+    {
+        if (app()->getLocale() !== 'en' || !$this->game) {
+            return $value;
+        }
+
+        [$winner, $loser, $score] = $this->englishGameData();
+        return "{$winner} defeat {$loser} {$score} in an exciting NBA game";
+    }
+
+    public function getExcerptAttribute($value): ?string
+    {
+        if (app()->getLocale() !== 'en' || !$this->game) {
+            return $value;
+        }
+
+        [$winner, $loser, $score] = $this->englishGameData();
+        return "{$winner} defeated {$loser} {$score} in an intense NBA matchup full of big plays.";
+    }
+
+    public function getContentAttribute($value): string
+    {
+        if (app()->getLocale() !== 'en' || !$this->game) {
+            return $value;
+        }
+
+        [$winner, $loser, $score] = $this->englishGameData();
+        return "<p>{$winner} defeated {$loser} {$score} in an exciting NBA game. Both teams played with intensity from the opening tip, trading big shots and strong defensive plays throughout the matchup.</p><p>The game remained competitive until the final minutes. {$winner} found the right answers under pressure, controlled the closing possessions and secured a well-deserved victory over {$loser}.</p>";
+    }
+
+    private function englishGameData(): array
+    {
+        $game = $this->game;
+        $homeWon = $game->home_score > $game->away_score;
+        $winner = $homeWon ? $game->homeTeam : $game->awayTeam;
+        $loser = $homeWon ? $game->awayTeam : $game->homeTeam;
+        $score = ($homeWon ? $game->home_score : $game->away_score) . '-' . ($homeWon ? $game->away_score : $game->home_score);
+
+        return [$winner->name, $loser->name, $score];
     }
 
     public function incrementViews(): void

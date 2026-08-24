@@ -6,12 +6,11 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Cache;
 use App\Services\BalldontlieService;
 use App\Models\Team;
-use App\Models\Player;
 use App\Models\Game;
 
 class NbaSync extends Command
 {
-    protected $signature = 'nba:sync {--only= : teams,players,games}';
+    protected $signature = 'nba:sync {--only= : teams,games}';
     protected $description = 'Sync NBA data from balldontlie API';
 
     public function handle()
@@ -25,46 +24,6 @@ class NbaSync extends Command
             $this->info('Sincronizando times...');
             $balldontlie->syncTeams();
             $this->info('Times no banco: ' . Team::count());
-        }
-
-        if (!$only || $only === 'players') {
-            $this->info('Sincronizando jogadores...');
-            $page = 1;
-            $count = 0;
-            while ($page <= 10) {
-                $players = $balldontlie->getPlayers(['per_page' => 100, 'page' => $page]);
-                $this->info("  Pagina {$page}: " . count($players) . " jogadores da API");
-                if (empty($players)) break;
-                foreach ($players as $p) {
-                    $team = Team::where('api_id', $p['team']['id'] ?? 0)->first();
-                    $heightCm = null;
-                    if (!empty($p['height'])) {
-                        $parts = explode('-', $p['height']);
-                        if (count($parts) === 2) {
-                            $heightCm = round(((int)$parts[0] * 30.48) + ((int)$parts[1] * 2.54), 2);
-                        }
-                    }
-                    $weightKg = null;
-                    if (!empty($p['weight']) && is_numeric($p['weight'])) {
-                        $weightKg = round((float)$p['weight'] / 2.205, 2);
-                    }
-                    Player::updateOrCreate(
-                        ['api_id' => $p['id']],
-                        [
-                            'full_name' => $p['first_name'] . ' ' . $p['last_name'],
-                            'position' => $p['position'] ?? 'Unknown',
-                            'team_id' => $team?->id,
-                            'jersey_number' => $p['jersey_number'] ?? null,
-                            'height_cm' => $heightCm,
-                            'weight_kg' => $weightKg,
-                            'nationality' => $p['country'] ?? null,
-                        ]
-                    );
-                    $count++;
-                }
-                $page++;
-            }
-            $this->info('Jogadores sincronizados: ' . $count);
         }
 
         if (!$only || $only === 'games') {
@@ -111,7 +70,6 @@ class NbaSync extends Command
         $this->info('');
         $this->info('=== Status Final ===');
         $this->info('Times: ' . Team::count());
-        $this->info('Jogadores: ' . Player::count());
         $this->info('Jogos: ' . Game::count());
     }
 }

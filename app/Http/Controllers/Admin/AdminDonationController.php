@@ -24,13 +24,4 @@ class AdminDonationController extends Controller
         return view('admin.donations.index', compact('donations', 'stats'));
     }
 
-    public function confirm(Donation $donation)
-    {
-        $donation->update([
-            'status' => 'confirmed',
-            'paid_at' => now(),
-        ]);
-
-        return back()->with('success', 'Doação confirmada com sucesso!');
-    }
 }

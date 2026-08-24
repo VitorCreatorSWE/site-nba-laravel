@@ -8,7 +8,7 @@
         <div class="col-lg-8">
             <article>
                 <div class="mb-3">
-                    <span class="badge bg-success">Estatística</span>
+                    <span class="badge bg-success">{{ __('messages.statistic') }}</span>
                 </div>
 
                 <h1 class="mb-3">{{ $post->title }}</h1>
@@ -33,7 +33,7 @@
             <hr class="my-5">
 
             <section>
-                <h3><i class="bi bi-chat-dots"></i> Comentários ({{ $post->approvedComments->count() }})</h3>
+                <h3><i class="bi bi-chat-dots"></i> {{ __('messages.comments_count') }} ({{ $post->approvedComments->count() }})</h3>
 
                 @auth
                     <form method="POST" action="{{ route('comments.store', $post) }}" class="mb-4">
@@ -41,11 +41,11 @@
                         <div class="mb-3">
                             <textarea name="content" class="form-control" rows="3" placeholder="Escreva seu comentário..." required>{{ old('content') }}</textarea>
                         </div>
-                        <button type="submit" class="btn btn-primary">Enviar comentário</button>
+                        <button type="submit" class="btn btn-primary">{{ __('messages.send_comment') }}</button>
                     </form>
                 @else
                     <div class="alert alert-info">
-                        <a href="{{ route('login') }}">Faça login</a> para comentar.
+                        <a href="{{ route('login') }}">{{ __('messages.login') }}</a> {{ __('messages.login_to_comment') }}
                     </div>
                 @endauth
 
@@ -60,7 +60,7 @@
                         </div>
                     </div>
                 @empty
-                    <p class="text-muted">Nenhum comentário ainda.</p>
+                    <p class="text-muted">{{ __('messages.no_comments') }}</p>
                 @endforelse
             </section>
         </div>
@@ -68,7 +68,7 @@
         <div class="col-lg-4">
             <div class="card mb-4">
                 <div class="card-header">
-                    <h5 class="mb-0">Estatísticas Relacionadas</h5>
+                    <h5 class="mb-0">{{ __('messages.related_statistics') }}</h5>
                 </div>
                 <div class="card-body">
                     @forelse($relatedPosts as $related)
@@ -87,7 +87,7 @@
                             </div>
                         </div>
                     @empty
-                        <p class="text-muted mb-0">Nenhuma estatística relacionada.</p>
+                        <p class="text-muted mb-0">{{ __('messages.no_related_statistics') }}</p>
                     @endforelse
                 </div>
             </div>

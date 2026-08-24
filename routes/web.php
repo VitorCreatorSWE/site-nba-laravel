@@ -15,7 +15,6 @@ use App\Http\Controllers\Admin\AdminPostController;
 use App\Http\Controllers\Admin\AdminGameController;
 use App\Http\Controllers\Admin\AdminStatsController;
 use App\Http\Controllers\Admin\AdminTeamController;
-use App\Http\Controllers\Admin\AdminPlayerController;
 use App\Http\Controllers\Admin\AdminCommentController;
 use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Admin\AdminDonationController;
@@ -37,7 +36,6 @@ Route::get('/jogos/{game}', [GameController::class, 'show'])->name('jogos.show')
 // Estatísticas
 Route::get('/estatisticas', [StatsController::class, 'index'])->name('estatisticas.index');
 Route::get('/estatisticas/{team:abbreviation}', [StatsController::class, 'showTeam'])->name('estatisticas.team');
-Route::get('/estatisticas/jogador/{player}', [StatsController::class, 'showPlayer'])->name('estatisticas.player');
 
 // Doações
 Route::get('/doacoes', [DonationController::class, 'index'])->name('donations.index');
@@ -67,25 +65,22 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::resource('games', AdminGameController::class);
     Route::resource('stats', AdminStatsController::class);
     Route::resource('teams', AdminTeamController::class);
-    Route::resource('players', AdminPlayerController::class);
 
     Route::get('/comentarios', [AdminCommentController::class, 'index'])->name('comments.index');
     Route::post('/comentarios/{comment}/aprovar', [AdminCommentController::class, 'approve'])->name('comments.approve');
     Route::delete('/comentarios/{comment}', [AdminCommentController::class, 'destroy'])->name('comments.destroy');
+    Route::post('/comentarios/{comment}/excluir', [AdminCommentController::class, 'destroy'])->name('comments.delete');
 
     Route::get('/usuarios', [AdminUserController::class, 'index'])->name('users.index');
     Route::post('/usuarios/{user}/bloquear', [AdminUserController::class, 'block'])->name('users.block');
     Route::delete('/usuarios/{user}', [AdminUserController::class, 'destroy'])->name('users.destroy');
 
     Route::get('/doacoes', [AdminDonationController::class, 'index'])->name('donations.index');
-    Route::post('/doacoes/{donation}/confirmar', [AdminDonationController::class, 'confirm'])->name('donations.confirm');
 
     Route::post('/sync/teams', [AdminSyncController::class, 'syncTeams'])->name('sync.teams');
-    Route::post('/sync/players', [AdminSyncController::class, 'syncPlayers'])->name('sync.players');
     Route::post('/sync/games', [AdminSyncController::class, 'syncGames'])->name('sync.games');
 
     Route::get('/api/search-teams', [AdminApiController::class, 'searchTeams'])->name('api.search-teams');
-    Route::get('/api/search-players', [AdminApiController::class, 'searchPlayers'])->name('api.search-players');
     Route::get('/api/team-info', [AdminApiController::class, 'getTeamInfo'])->name('api.team-info');
 });
 

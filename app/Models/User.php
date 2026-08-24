@@ -19,7 +19,7 @@ class User extends Authenticatable
         'avatar',
         'is_blocked',
         'locale',
-        'theme',
+        'theme_preference',
         'notify_email',
     ];
 

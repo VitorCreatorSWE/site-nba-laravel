@@ -11,15 +11,7 @@
             <div class="card bg-success text-white">
                 <div class="card-body text-center">
                     <div class="h3">R$ {{ number_format($stats['total'], 2, ',', '.') }}</div>
-                    <p class="mb-0">Total Confirmado</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card bg-warning text-dark">
-                <div class="card-body text-center">
-                    <div class="h3">{{ $stats['pending'] }}</div>
-                    <p class="mb-0">Pendentes</p>
+                    <p class="mb-0">Total Concluído</p>
                 </div>
             </div>
         </div>
@@ -27,7 +19,7 @@
             <div class="card bg-info text-white">
                 <div class="card-body text-center">
                     <div class="h3">{{ $stats['confirmed'] }}</div>
-                    <p class="mb-0">Confirmadas</p>
+                    <p class="mb-0">Concluídas</p>
                 </div>
             </div>
         </div>
@@ -35,7 +27,7 @@
             <div class="card bg-danger text-white">
                 <div class="card-body text-center">
                     <div class="h3">{{ $stats['failed'] }}</div>
-                    <p class="mb-0">Rejeitadas</p>
+                    <p class="mb-0">Apoiadores</p>
                 </div>
             </div>
         </div>
@@ -52,7 +44,6 @@
                             <th>Valor</th>
                             <th>Status</th>
                             <th>Data</th>
-                            <th>{{ __('messages.actions') }}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -62,27 +53,11 @@
                                 <td>{{ $donation->donor_name ?? 'Anônimo' }}</td>
                                 <td>{{ $donation->amount_formatted }}</td>
                                 <td>
-                                    <span class="badge bg-{{ $donation->status === 'confirmed' ? 'success' : ($donation->status === 'pending' ? 'warning' : 'danger') }}">
-                                        {{ $donation->status }}
+                                    <span class="badge bg-success">
+                                        Concluída
                                     </span>
                                 </td>
                                 <td>{{ $donation->created_at->format('d/m/Y H:i') }}</td>
-                                <td>
-                                    @if($donation->isPending())
-                                        <form method="POST" action="{{ route('admin.donations.confirm', $donation) }}" class="d-inline">
-                                            @csrf
-                                            <button type="submit" class="btn btn-sm btn-outline-success">
-                                                <i class="bi bi-check"></i>
-                                            </button>
-                                        </form>
-                                        <form method="POST" action="{{ route('admin.donations.reject', $donation) }}" class="d-inline">
-                                            @csrf
-                                            <button type="submit" class="btn btn-sm btn-outline-danger">
-                                                <i class="bi bi-x"></i>
-                                            </button>
-                                        </form>
-                                    @endif
-                                </td>
                             </tr>
                         @empty
                             <tr>

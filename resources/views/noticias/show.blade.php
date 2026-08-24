@@ -9,7 +9,7 @@
             <article>
                 <div class="mb-3">
                     <a href="{{ route('noticias.index') }}" class="text-decoration-none">
-                        <i class="bi bi-arrow-left"></i> Voltar para Notícias
+                        <i class="bi bi-arrow-left"></i> {{ __('messages.back_to_news') }}
                     </a>
                 </div>
 
@@ -20,7 +20,7 @@
                 <div class="d-flex align-items-center text-muted mb-4 flex-wrap gap-3">
                     <span><i class="bi bi-newspaper"></i> Basq NBA</span>
                     <span><i class="bi bi-calendar"></i> {{ $post->published_at->format('d/m/Y H:i') }}</span>
-                    <span><i class="bi bi-eye"></i> {{ $post->views_count }} visualizações</span>
+                    <span><i class="bi bi-eye"></i> {{ $post->views_count }} {{ __('messages.views') }}</span>
                 </div>
 
                 @if($post->cover_image)
@@ -35,19 +35,19 @@
             <hr class="my-5">
 
             <section>
-                <h3><i class="bi bi-chat-dots"></i> Comentários ({{ $post->approvedComments->count() }})</h3>
+                <h3><i class="bi bi-chat-dots"></i> {{ __('messages.comments_count') }} ({{ $post->approvedComments->count() }})</h3>
 
                 @auth
                     <form method="POST" action="{{ route('comments.store', $post) }}" class="mb-4">
                         @csrf
                         <div class="mb-3">
-                            <textarea name="content" class="form-control" rows="3" placeholder="Escreva seu comentário..." required>{{ old('content') }}</textarea>
+                            <textarea name="content" class="form-control" rows="3" placeholder="{{ __('messages.comment_placeholder') }}" required>{{ old('content') }}</textarea>
                         </div>
-                        <button type="submit" class="btn btn-primary">Enviar comentário</button>
+                        <button type="submit" class="btn btn-primary">{{ __('messages.send_comment') }}</button>
                     </form>
                 @else
                     <div class="alert alert-info">
-                        <a href="{{ route('login') }}">Faça login</a> para comentar.
+                        <a href="{{ route('login') }}">{{ __('messages.login') }}</a> {{ __('messages.login_to_comment') }}
                     </div>
                 @endauth
 
@@ -62,7 +62,7 @@
                         </div>
                     </div>
                 @empty
-                    <p class="text-muted">Nenhum comentário ainda. Seja o primeiro!</p>
+                    <p class="text-muted">{{ __('messages.no_comments_first') }}</p>
                 @endforelse
             </section>
         </div>
@@ -70,7 +70,7 @@
         <div class="col-lg-4">
             <div class="card mb-4">
                 <div class="card-header">
-                    <h5 class="mb-0">Notícias Relacionadas</h5>
+                    <h5 class="mb-0">{{ __('messages.related_news') }}</h5>
                 </div>
                 <div class="card-body">
                     @forelse($relatedPosts as $related)
@@ -89,7 +89,7 @@
                             </div>
                         </div>
                     @empty
-                        <p class="text-muted mb-0">Nenhuma notícia relacionada.</p>
+                        <p class="text-muted mb-0">{{ __('messages.no_related_news') }}</p>
                     @endforelse
                 </div>
             </div>

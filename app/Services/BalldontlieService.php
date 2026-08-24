@@ -46,17 +46,6 @@ class BalldontlieService
         return $data['data'] ?? null;
     }
 
-    public function getPlayers(array $params = []): array
-    {
-        $data = $this->request('/players', $params);
-        return $data['data'] ?? [];
-    }
-
-    public function searchPlayers(string $search): array
-    {
-        return $this->getPlayers(['search' => $search]);
-    }
-
     public function getSeasonAverages(array $params): array
     {
         $data = $this->request('/season_averages', $params);
@@ -69,25 +58,30 @@ class BalldontlieService
         return $data['data'] ?? [];
     }
 
-    public function getPlayerStats(array $params = []): array
-    {
-        $data = $this->request('/stats', $params);
-        return $data['data'] ?? [];
-    }
-
     public function syncTeams(): void
     {
         $teams = $this->getTeams();
 
+        $knownTeamData = [
+            'WAS' => [
+                'name' => 'Washington Wizards',
+                'conference' => 'East',
+                'division' => 'Southeast',
+            ],
+        ];
+
         foreach ($teams as $teamData) {
+            $abbreviation = $teamData['abbreviation'] ?? strtoupper(substr($teamData['name'], 0, 3));
+            $fallback = $knownTeamData[$abbreviation] ?? [];
+
             \App\Models\Team::updateOrCreate(
                 ['api_id' => $teamData['id']],
                 [
-                    'name' => $teamData['name'],
-                    'abbreviation' => $teamData['abbreviation'] ?? strtoupper(substr($teamData['name'], 0, 3)),
+                    'name' => $fallback['name'] ?? $teamData['name'],
+                    'abbreviation' => $abbreviation,
                     'city' => $teamData['city'] ?? '',
-                    'conference' => $teamData['conference'] ?? 'Unknown',
-                    'division' => $teamData['division'] ?? '',
+                    'conference' => $teamData['conference'] ?: ($fallback['conference'] ?? 'East'),
+                    'division' => $teamData['division'] ?: ($fallback['division'] ?? 'Southeast'),
                 ]
             );
         }

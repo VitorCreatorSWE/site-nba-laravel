@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Services\BalldontlieService;
 use App\Models\Team;
-use App\Models\Player;
 use App\Models\Game;
 
 class AdminSyncController extends Controller
@@ -15,40 +14,6 @@ class AdminSyncController extends Controller
         $balldontlie->syncTeams();
 
         return back()->with('success', 'Times sincronizados com sucesso! (' . Team::count() . ' times)');
-    }
-
-    public function syncPlayers(BalldontlieService $balldontlie)
-    {
-        $page = 1;
-        $totalSynced = 0;
-
-        while ($page <= 10) {
-            $players = $balldontlie->getPlayers(['per_page' => 100, 'page' => $page]);
-
-            if (empty($players)) break;
-
-            foreach ($players as $playerData) {
-                $team = Team::where('api_id', $playerData['team']['id'] ?? 0)->first();
-
-                Player::updateOrCreate(
-                    ['api_id' => $playerData['id']],
-                    [
-                        'full_name' => $playerData['first_name'] . ' ' . $playerData['last_name'],
-                        'position' => $playerData['position'] ?? 'Unknown',
-                        'team_id' => $team?->id,
-                        'jersey_number' => $playerData['jersey_number'] ?? null,
-                        'height_cm' => $playerData['height'] ?? null,
-                        'weight_kg' => $playerData['weight'] ?? null,
-                        'nationality' => $playerData['country'] ?? null,
-                    ]
-                );
-                $totalSynced++;
-            }
-
-            $page++;
-        }
-
-        return back()->with('success', "{$totalSynced} jogadores sincronizados com sucesso!");
     }
 
     public function syncGames(BalldontlieService $balldontlie)

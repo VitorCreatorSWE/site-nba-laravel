@@ -4,7 +4,6 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use App\Models\Team;
-use App\Models\Player;
 
 class FixTeams extends Command
 {
@@ -44,39 +43,6 @@ class FixTeams extends Command
         'WAS' => ['nba_id' => 1610612764, 'arena' => 'Capital One Arena', 'city' => 'Washington', 'capacity' => 20356],
     ];
 
-    protected array $nbaPlayerIds = [
-        'LeBron James' => 2544,
-        'Stephen Curry' => 201939,
-        'Kevin Durant' => 5419,
-        'Giannis Antetokounmpo' => 203507,
-        'Nikola Jokic' => 203999,
-        'Luka Doncic' => 1629029,
-        'Joel Embiid' => 203954,
-        'Jayson Tatum' => 1628369,
-        'Anthony Davis' => 203076,
-        'Damian Lillard' => 203081,
-        'Jimmy Butler' => 202710,
-        'Kawhi Leonard' => 6450,
-        'Paul George' => 6451,
-        'James Harden' => 201935,
-        'Russell Westbrook' => 201566,
-        'Kyrie Irving' => 6442,
-        'Klay Thompson' => 202691,
-        'Draymond Green' => 203110,
-        'Devin Booker' => 203999,
-        'Ja Morant' => 1629630,
-        'Zion Williamson' => 1629627,
-        'Trae Young' => 1628973,
-        'Luka Doncic' => 1629029,
-        'Shai Gilgeous-Alexander' => 1628983,
-        'Tyrese Haliburton' => 1630169,
-        'Paolo Banchero' => 1631104,
-        'Chet Holmgren' => 1631100,
-        'Victor Wembanyama' => 1641705,
-        'Anthony Edwards' => 1630162,
-        'Jalen Brunson' => 1628973,
-    ];
-
     public function handle()
     {
         $this->info('=== Fixing Teams ===');
@@ -98,22 +64,8 @@ class FixTeams extends Command
         $this->info("Updated {$updated} teams");
 
         $this->info('');
-        $this->info('=== Fixing Players ===');
-        $playerUpdated = 0;
-
-        foreach ($this->nbaPlayerIds as $name => $nbaId) {
-            $player = Player::where('full_name', $name)->first();
-            if ($player) {
-                $player->update(['nba_api_id' => $nbaId]);
-                $playerUpdated++;
-            }
-        }
-        $this->info("Updated {$playerUpdated} players with NBA IDs");
-
-        $this->info('');
         $this->info('=== Status ===');
         $this->info('Teams with arena: ' . Team::whereNotNull('arena_name')->count());
         $this->info('Teams with NBA ID: ' . Team::whereNotNull('nba_api_id')->count());
-        $this->info('Players with NBA ID: ' . Player::whereNotNull('nba_api_id')->count());
     }
 }

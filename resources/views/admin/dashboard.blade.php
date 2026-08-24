@@ -67,14 +67,6 @@
         <div class="col-md-3">
             <div class="card">
                 <div class="card-body text-center">
-                    <div class="h3">{{ $stats['total_players'] }}</div>
-                    <p class="mb-0 text-muted">Jogadores</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card">
-                <div class="card-body text-center">
                     <div class="h3">{{ $stats['draft_posts'] }}</div>
                     <p class="mb-0 text-muted">Rascunhos</p>
                 </div>
@@ -180,14 +172,6 @@
                 <div class="card-body text-center">
                     <i class="bi bi-shield-shaded text-info" style="font-size:2rem;"></i>
                     <h5 class="mt-2">Times</h5>
-                </div>
-            </a>
-        </div>
-        <div class="col-md-3">
-            <a href="{{ route('admin.players.index') }}" class="card text-decoration-none">
-                <div class="card-body text-center">
-                    <i class="bi bi-person-badge text-warning" style="font-size:2rem;"></i>
-                    <h5 class="mt-2">Jogadores</h5>
                 </div>
             </a>
         </div>

@@ -67,8 +67,8 @@
                 <thead>
                     <tr>
                         <th>{{ __('messages.game') }}</th>
-                        <th>Data</th>
-                        <th>Local</th>
+                        <th>{{ __('messages.date') }}</th>
+                        <th>{{ __('messages.venue') }}</th>
                         <th></th>
                     </tr>
                 </thead>

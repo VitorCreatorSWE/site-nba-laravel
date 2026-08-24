@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Team;
-use App\Models\Player;
 use App\Models\Game;
 use App\Models\GameStat;
 use Illuminate\Http\Request;
@@ -21,8 +20,6 @@ class StatsController extends Controller
 
     public function showTeam(Team $team)
     {
-        $team->load('players');
-
         $gamesWon = Game::where('status', 'finished')
             ->where(function ($q) use ($team) {
                 $q->where(function ($q2) use ($team) {
@@ -38,13 +35,6 @@ class StatsController extends Controller
             ->where('home_team_id', $team->id)
             ->orWhere('away_team_id', $team->id)
             ->count();
-
-        $currentPlayers = $team->players()->get();
-
-        $formerPlayers = Player::whereHas('teamHistory', function ($q) use ($team) {
-            $q->where('team_id', $team->id)
-              ->whereNotNull('end_date');
-        })->with('teamHistory.team')->get();
 
         $winRate = $gamesTotal > 0 ? round(($gamesWon / $gamesTotal) * 100, 1) : 0;
 
@@ -82,17 +72,9 @@ class StatsController extends Controller
             'team',
             'gamesWon',
             'gamesTotal',
-            'currentPlayers',
-            'formerPlayers',
             'winRate',
             'recentGames'
         ));
     }
 
-    public function showPlayer(Player $player)
-    {
-        $player->load(['team', 'careerStats', 'seasonStats', 'teamHistory.team']);
-
-        return view('estatisticas.player', compact('player'));
-    }
 }

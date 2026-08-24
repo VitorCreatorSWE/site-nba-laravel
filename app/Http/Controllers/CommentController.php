@@ -18,11 +18,11 @@ class CommentController extends Controller
             'user_id' => auth()->id(),
             'post_id' => $post->id,
             'content' => $validated['content'],
-            'approved' => false,
+            'approved' => true,
         ]);
 
-        return redirect()->route('posts.show', $post)
-            ->with('success', 'Comentário enviado para moderação.');
+        return redirect()->route('noticias.show', $post->slug)
+            ->with('success', __('messages.comment_pending'));
     }
 
     public function approve(Comment $comment)

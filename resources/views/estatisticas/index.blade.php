@@ -1,13 +1,13 @@
 @extends('layouts.app')
 
-@section('title', 'Estatísticas - Basq NBA')
+@section('title', __('messages.stats') . ' - Basq NBA')
 
 @section('content')
 <div class="container py-5">
     <div class="row mb-4">
         <div class="col">
-            <h1 class="mb-2"><i class="bi bi-bar-chart"></i> Estatísticas</h1>
-            <p class="text-muted">Dados e estatísticas de todos os times da NBA</p>
+            <h1 class="mb-2"><i class="bi bi-bar-chart"></i> {{ __('messages.stats') }}</h1>
+            <p class="text-muted">{{ __('messages.stats_subtitle') }}</p>
         </div>
     </div>
 
@@ -29,7 +29,7 @@
                             @if($team->championships_count > 0)
                                 <p class="mt-2 mb-0">
                                     <span class="badge bg-warning text-dark">
-                                        <i class="bi bi-trophy"></i> {{ $team->championships_count }} {{ $team->championships_count > 1 ? 'Títulos' : 'Título' }}
+                                        <i class="bi bi-trophy"></i> {{ $team->championships_count }} {{ $team->championships_count > 1 ? __('messages.titles') : __('messages.title') }}
                                     </span>
                                 </p>
                             @endif
@@ -40,7 +40,7 @@
         @empty
             <div class="col-12 text-center py-5">
                 <i class="bi bi-people text-muted" style="font-size:4rem;"></i>
-                <p class="mt-3 text-muted">Nenhum time encontrado. Sincronize os times primeiro.</p>
+                <p class="mt-3 text-muted">{{ __('messages.no_teams_sync') }}</p>
             </div>
         @endforelse
     </div>

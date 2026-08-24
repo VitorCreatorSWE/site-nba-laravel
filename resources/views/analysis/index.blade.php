@@ -1,13 +1,13 @@
 @extends('layouts.app')
 
-@section('title', 'Análises - Basq NBA')
+@section('title', __('messages.analysis') . ' - Basq NBA')
 
 @section('content')
 <div class="container py-5">
     <div class="row mb-4">
         <div class="col">
-            <h1 class="mb-2"><i class="bi bi-graph-up"></i> Análises</h1>
-            <p class="text-muted">Análises detalhadas de jogos, jogadores e tendências da NBA</p>
+            <h1 class="mb-2"><i class="bi bi-graph-up"></i> {{ __('messages.analysis') }}</h1>
+            <p class="text-muted">{{ __('messages.analysis_subtitle') }}</p>
         </div>
     </div>
 
@@ -24,7 +24,7 @@
                             </div>
                         @endif
                         <div class="card-body">
-                            <span class="badge bg-info mb-2">Análise</span>
+                            <span class="badge bg-info mb-2">{{ __('messages.analysis') }}</span>
                             <h5 class="card-title">{{ $post->title }}</h5>
                             <p class="card-text text-muted">{{ Str::limit($post->excerpt ?? strip_tags($post->content), 120) }}</p>
                         </div>
@@ -35,7 +35,7 @@
                                     <span class="mx-1">•</span>
                                     {{ $post->published_at->format('d/m/Y') }}
                                 </small>
-                                <a href="{{ route('analises.show', $post->slug) }}" class="btn btn-sm btn-outline-info">Ler mais</a>
+                                <a href="{{ route('analises.show', $post->slug) }}" class="btn btn-sm btn-outline-info">{{ __('messages.read_more') }}</a>
                             </div>
                         </div>
                     </div>
@@ -49,7 +49,7 @@
     @else
         <div class="text-center py-5">
             <i class="bi bi-graph-up text-muted" style="font-size:4rem;"></i>
-            <p class="mt-3 text-muted">Nenhuma análise encontrada.</p>
+            <p class="mt-3 text-muted">{{ __('messages.no_analysis') }}</p>
         </div>
     @endif
 </div>

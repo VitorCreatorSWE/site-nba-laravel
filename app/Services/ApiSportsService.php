@@ -78,16 +78,6 @@ class ApiSportsService
         return $data['response'] ?? [];
     }
 
-    public function getPlayers(int $teamId, int $season = null): array
-    {
-        $season = $season ?? (int) date('Y');
-        $data = $this->request('/players', [
-            'team' => $teamId,
-            'season' => $season,
-        ]);
-        return $data['response'] ?? [];
-    }
-
     public function syncGames(): void
     {
         $games = $this->getGames();

@@ -1,20 +1,20 @@
 @extends('layouts.app')
 
-@section('title', 'Notícias - Basq NBA')
+@section('title', __('messages.news') . ' - Basq NBA')
 
 @section('content')
 <div class="container py-5">
     <div class="row mb-4">
         <div class="col">
-            <h1 class="mb-2"><i class="bi bi-newspaper"></i> Notícias</h1>
-            <p class="text-muted">Fique por dentro de tudo que acontece na NBA</p>
+            <h1 class="mb-2"><i class="bi bi-newspaper"></i> {{ __('messages.news') }}</h1>
+            <p class="text-muted">{{ __('messages.news_subtitle') }}</p>
         </div>
     </div>
 
     <div class="row mb-4">
         <div class="col-md-6">
             <form method="GET" action="{{ route('noticias.index') }}" class="d-flex gap-2">
-                <input type="text" name="search" class="form-control" placeholder="Buscar notícia..." value="{{ request('search') }}">
+                <input type="text" name="search" class="form-control" placeholder="{{ __('messages.search_news') }}" value="{{ request('search') }}">
                 <button type="submit" class="btn btn-primary"><i class="bi bi-search"></i></button>
             </form>
         </div>
@@ -38,7 +38,7 @@
                                     <span class="mx-1"></span>
                                     {{ $post->published_at->format('d/m/Y') }}
                                 </small>
-                                <a href="{{ route('noticias.show', $post->slug) }}" class="btn btn-sm btn-outline-primary">Ler mais</a>
+                                <a href="{{ route('noticias.show', $post->slug) }}" class="btn btn-sm btn-outline-primary">{{ __('messages.read_more') }}</a>
                             </div>
                         </div>
                     </div>
@@ -52,7 +52,7 @@
     @else
         <div class="text-center py-5">
             <i class="bi bi-newspaper text-muted" style="font-size:4rem;"></i>
-            <p class="mt-3 text-muted">Nenhuma notícia encontrada.</p>
+            <p class="mt-3 text-muted">{{ __('messages.no_news') }}</p>
         </div>
     @endif
 </div>

@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Registrar')
+@section('title', __('messages.register'))
 
 @section('content')
 <div class="min-vh-100 d-flex align-items-center justify-content-center" style="background: linear-gradient(rgba(0,0,0,0.25), rgba(0,0,0,0.25)), url('{{ asset('images/ZwTSd.jpg') }}') center/cover no-repeat;">
@@ -28,7 +28,7 @@
                         @csrf
 
                         <div class="mb-3">
-                            <label for="name" class="form-label">Nome</label>
+                            <label for="name" class="form-label">{{ __('messages.name') }}</label>
                             <input type="text"
                                    name="name"
                                    id="name"
@@ -42,7 +42,7 @@
                         </div>
 
                         <div class="mb-3">
-                            <label for="email" class="form-label">E-mail</label>
+                            <label for="email" class="form-label">{{ __('messages.email') }}</label>
                             <input type="email"
                                    name="email"
                                    id="email"
@@ -55,7 +55,7 @@
                         </div>
 
                         <div class="mb-3">
-                            <label for="password" class="form-label">Senha</label>
+                            <label for="password" class="form-label">{{ __('messages.password') }}</label>
                             <div class="input-group">
                                 <input type="password"
                                        name="password"
@@ -72,7 +72,7 @@
                         </div>
 
                         <div class="mb-3">
-                            <label for="password_confirmation" class="form-label">Confirmar Senha</label>
+                            <label for="password_confirmation" class="form-label">{{ __('messages.password_confirmation') }}</label>
                             <div class="input-group">
                                 <input type="password"
                                        name="password_confirmation"
@@ -87,7 +87,7 @@
 
                         <button type="submit" class="btn btn-primary w-100">
                             <i class="bi bi-person-plus me-2"></i>
-                            Registrar
+                            {{ __('messages.register') }}
                         </button>
                     </form>
 
@@ -95,7 +95,7 @@
 
                     <p class="text-center mb-0">
                         Já tem conta?
-                        <a href="{{ route('login') }}">Entrar</a>
+                        <a href="{{ route('login') }}">{{ __('messages.login') }}</a>
                     </p>
                 </div>
             </div>

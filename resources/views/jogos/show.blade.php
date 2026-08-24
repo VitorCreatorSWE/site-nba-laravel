@@ -8,7 +8,7 @@
         <div class="col-lg-8">
             <div class="mb-3">
                 <a href="{{ route('jogos.index') }}" class="text-decoration-none">
-                    <i class="bi bi-arrow-left"></i> Voltar para Jogos
+                    <i class="bi bi-arrow-left"></i> {{ __('messages.back_to_games') }}
                 </a>
             </div>
 
@@ -16,11 +16,11 @@
                 <div class="card-body p-4">
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         @if($game->isLive())
-                            <span class="badge bg-danger fs-6"><i class="bi bi-broadcast"></i> AO VIVO</span>
+                            <span class="badge bg-danger fs-6"><i class="bi bi-broadcast"></i> {{ __('messages.live_upper') }}</span>
                         @elseif($game->isFinished())
-                            <span class="badge bg-secondary fs-6">Finalizado</span>
+                            <span class="badge bg-secondary fs-6">{{ __('messages.finished') }}</span>
                         @else
-                            <span class="badge bg-info fs-6">Agendado</span>
+                            <span class="badge bg-info fs-6">{{ __('messages.scheduled') }}</span>
                         @endif
                         <span class="text-muted"><i class="bi bi-calendar"></i> {{ $game->game_date->format('d/m/Y H:i') }}</span>
                     </div>
@@ -76,7 +76,7 @@
             @if($game->admin_analysis)
                 <div class="card mb-4">
                     <div class="card-header">
-                        <h5 class="mb-0"><i class="bi bi-graph-up"></i> Análise do Jogo</h5>
+                        <h5 class="mb-0"><i class="bi bi-graph-up"></i> {{ __('messages.game_analysis') }}</h5>
                     </div>
                     <div class="card-body">
                         <div class="content">{!! nl2br(e($game->admin_analysis)) !!}</div>
@@ -87,7 +87,7 @@
             @if(isset($analysis))
                 <div class="card mt-4 shadow">
                     <div class="card-header">
-                        <h5 class="mb-0"><i class="bi bi-journal-text"></i> Análise do Jogo</h5>
+                        <h5 class="mb-0"><i class="bi bi-journal-text"></i> {{ __('messages.game_analysis') }}</h5>
                     </div>
                     <div class="card-body">
                         @php
@@ -108,14 +108,14 @@
             @if($game->stats->count() > 0)
                 <div class="card mb-4">
                     <div class="card-header">
-                        <h5 class="mb-0"><i class="bi bi-bar-chart"></i> Estatísticas do Jogo</h5>
+                        <h5 class="mb-0"><i class="bi bi-bar-chart"></i> {{ __('messages.game_statistics') }}</h5>
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
                             <table class="table table-bordered table-hover">
                                 <thead class="table-dark">
                                     <tr>
-                                        <th>Estatística</th>
+                                        <th>{{ __('messages.statistic') }}</th>
                                         <th class="text-center">{{ $game->homeTeam->abbreviation }}</th>
                                         <th class="text-center">{{ $game->awayTeam->abbreviation }}</th>
                                     </tr>
@@ -188,10 +188,10 @@
                         <img src="{{ $game->homeTeam->logo }}" class="mb-3" style="width:80px;" alt="">
                     </a>
                     <p><strong>Conferência:</strong> {{ $game->homeTeam->conference }}</p>
-                    <p><strong>Divisão:</strong> {{ $game->homeTeam->division }}</p>
-                    <p><strong>Arena:</strong> {{ $game->homeTeam->arena_name ?? '-' }}</p>
+                    <p><strong>{{ __('messages.division') }}:</strong> {{ $game->homeTeam->division }}</p>
+                    <p><strong>{{ __('messages.arena') }}:</strong> {{ $game->homeTeam->arena_name ?? '-' }}</p>
                     <a href="{{ route('estatisticas.team', $game->homeTeam) }}" class="btn btn-outline-primary btn-sm">
-                        Ver Estatísticas
+                        {{ __('messages.stats') }}
                     </a>
                 </div>
             </div>
@@ -205,10 +205,10 @@
                         <img src="{{ $game->awayTeam->logo }}" class="mb-3" style="width:80px;" alt="">
                     </a>
                     <p><strong>Conferência:</strong> {{ $game->awayTeam->conference }}</p>
-                    <p><strong>Divisão:</strong> {{ $game->awayTeam->division }}</p>
-                    <p><strong>Arena:</strong> {{ $game->awayTeam->arena_name ?? '-' }}</p>
+                    <p><strong>{{ __('messages.division') }}:</strong> {{ $game->awayTeam->division }}</p>
+                    <p><strong>{{ __('messages.arena') }}:</strong> {{ $game->awayTeam->arena_name ?? '-' }}</p>
                     <a href="{{ route('estatisticas.team', $game->awayTeam) }}" class="btn btn-outline-primary btn-sm">
-                        Ver Estatísticas
+                        {{ __('messages.stats') }}
                     </a>
                 </div>
             </div>

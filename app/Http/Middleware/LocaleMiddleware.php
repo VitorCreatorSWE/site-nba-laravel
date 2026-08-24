@@ -16,6 +16,10 @@ class LocaleMiddleware
             app()->setLocale(auth()->user()->locale);
         }
 
+        if (!session()->has('theme') && auth()->check()) {
+            session(['theme' => auth()->user()->theme_preference ?? 'light']);
+        }
+
         return $next($request);
     }
 }
