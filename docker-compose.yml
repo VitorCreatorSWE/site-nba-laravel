@@ -1,0 +1,102 @@
+version: '3.8'
+
+services:
+    app:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        container_name: nba-website-app
+        restart: unless-stopped
+        working_dir: /var/www
+        volumes:
+            - .:/var/www
+            - ./docker/php/local.ini:/usr/local/etc/php/conf.d/local.ini
+        networks:
+            - nba-network
+        depends_on:
+            - mysql
+            - redis
+
+    nginx:
+        image: nginx:alpine
+        container_name: nba-website-nginx
+        restart: unless-stopped
+        ports:
+            - "8080:80"
+        volumes:
+            - .:/var/www
+            - ./docker/nginx:/etc/nginx/conf.d
+        networks:
+            - nba-network
+        depends_on:
+            - app
+
+    mysql:
+        image: mysql:8.0
+        container_name: nba-website-mysql
+        restart: unless-stopped
+        environment:
+            MYSQL_DATABASE: nba_website
+            MYSQL_ROOT_PASSWORD: root
+            MYSQL_USER: nba_user
+            MYSQL_PASSWORD: nba_password
+        ports:
+            - "3306:3306"
+        volumes:
+            - nba-mysql-data:/var/lib/mysql
+        networks:
+            - nba-network
+
+    redis:
+        image: redis:alpine
+        container_name: nba-website-redis
+        restart: unless-stopped
+        ports:
+            - "6379:6379"
+        volumes:
+            - nba-redis-data:/data
+        networks:
+            - nba-network
+
+    queue:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        container_name: nba-website-queue
+        restart: unless-stopped
+        working_dir: /var/www
+        command: php artisan queue:work redis --sleep=3 --tries=3 --max-time=3600
+        volumes:
+            - .:/var/www
+        networks:
+            - nba-network
+        depends_on:
+            - app
+            - redis
+            - mysql
+
+    scheduler:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        container_name: nba-website-scheduler
+        restart: unless-stopped
+        working_dir: /var/www
+        command: >
+            sh -c "while true; do php artisan schedule:run --verbose --no-interaction & sleep 60; done"
+        volumes:
+            - .:/var/www
+        networks:
+            - nba-network
+        depends_on:
+            - app
+            - redis
+            - mysql
+
+networks:
+    nba-network:
+        driver: bridge
+
+volumes:
+    nba-mysql-data:
+    nba-redis-data:

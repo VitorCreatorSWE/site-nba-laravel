@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+    <defs>
+        <radialGradient id="ballGradient" cx="40%" cy="35%" r="70%">
+            <stop offset="0%" style="stop-color:#F97316"/>
+            <stop offset="60%" style="stop-color:#EA580C"/>
+            <stop offset="100%" style="stop-color:#C2410C"/>
+        </radialGradient>
+        <radialGradient id="shineGradient" cx="35%" cy="30%" r="40%">
+            <stop offset="0%" style="stop-color:rgba(255,255,255,0.4)"/>
+            <stop offset="100%" style="stop-color:rgba(255,255,255,0)"/>
+        </radialGradient>
+    </defs>
+
+    <!-- Bola principal -->
+    <circle cx="100" cy="100" r="95" fill="url(#ballGradient)" stroke="#7C2D12" stroke-width="4"/>
+
+    <!-- Linhas do basquete -->
+    <g stroke="#7C2D12" stroke-width="3" fill="none">
+        <line x1="5" y1="100" x2="195" y2="100"/>
+        <line x1="100" y1="5" x2="100" y2="195"/>
+
+        <path d="M 5 100 Q 50 100 50 50 Q 50 5 100 5"/>
+        <path d="M 100 5 Q 150 5 150 50 Q 150 100 195 100"/>
+        <path d="M 5 100 Q 50 100 50 150 Q 50 195 100 195"/>
+        <path d="M 100 195 Q 150 195 150 150 Q 150 100 195 100"/>
+
+        <path d="M 5 50 Q 30 50 30 80 Q 30 120 5 150"/>
+        <path d="M 195 50 Q 170 50 170 80 Q 170 120 195 150"/>
+
+        <path d="M 50 5 Q 80 40 100 5"/>
+        <path d="M 50 195 Q 80 160 100 195"/>
+        <path d="M 100 5 Q 120 40 150 5"/>
+        <path d="M 100 195 Q 120 160 150 195"/>
+    </g>
+
+    <!-- Brilho -->
+    <circle cx="100" cy="100" r="95" fill="url(#shineGradient)"/>
+</svg>
