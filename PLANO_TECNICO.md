@@ -1,14 +1,35 @@
-# 🏀 Tudo NBA Basketball — Plano Técnico Completo
+# 🏀 Basq NBA — Plano Técnico & Documentação de Arquitetura
 
 ## 1. Visão Geral
 
-Site de portfólio pessoal em Laravel 11 para demonstrar habilidades em back-end, com tema NBA (análises, opiniões, cobertura de jogos).
+O **Basq NBA** é uma plataforma web completa desenvolvida com **Laravel 13** e **PHP 8.3+** com foco em cobertura da NBA, estatísticas de franquias e atletas, calendário e resultados de partidas, notícias, análises táticas, moderação comunitária e arrecadação de apoio financeiro via Pix com QR Code dinâmico.
+
+O projeto foi construído seguindo boas práticas de arquitetura MVC em camadas, integrando APIs esportivas externas, persistência de preferências de usuário (tema escuro/claro e idioma PT/EN), sistema de filas e cache, e painel administrativo protegido.
 
 ---
 
 ## 2. Modelagem do Banco de Dados
 
-### 2.1 Tabelas Principais
+### 2.1 Diagrama Entidade-Relacionamento
+
+```mermaid
+erDiagram
+    users ||--o{ posts : "cria"
+    users ||--o{ comments : "escreve"
+    users ||--o{ donations : "realiza"
+    teams ||--o{ players : "possui"
+    teams ||--o{ games : "manda (home)"
+    teams ||--o{ games : "visita (away)"
+    teams ||--o{ game_stats : "registra"
+    games ||--o{ game_stats : "contem"
+    games ||--o| posts : "gera noticia/analise"
+    posts ||--o{ comments : "recebe"
+    comments ||--o{ comments : "respostas"
+```
+
+---
+
+### 2.2 Estrutura das Tabelas Principais
 
 ```
 users
@@ -21,33 +42,17 @@ users
 ├── avatar (string, 255, nullable)
 ├── is_blocked (boolean) DEFAULT false
 ├── locale (enum: 'pt', 'en') DEFAULT 'pt'
-├── theme (enum: 'light', 'dark') DEFAULT 'light')
+├── theme_preference (enum: 'light', 'dark') DEFAULT 'light'
 ├── notify_email (boolean) DEFAULT true
 ├── remember_token (string, 100, nullable)
 ├── created_at (timestamp)
 ├── updated_at (timestamp)
 └── INDEX: email
 
-posts
-├── id (PK, bigint, auto_increment)
-├── user_id (FK → users.id, CASCADE)
-├── title (string, 255)
-├── slug (string, 255, unique)
-├── content (longText)
-├── excerpt (text, nullable)
-├── cover_image (string, 500, nullable)
-├── category (enum: 'noticia', 'jogo', 'estatistica', 'recente', 'analise')
-├── status (enum: 'draft', 'published') DEFAULT 'draft'
-├── published_at (datetime, nullable)
-├── views_count (integer) DEFAULT 0
-├── created_at (timestamp)
-├── updated_at (timestamp)
-├── INDEX: slug, category, status, published_at
-└── FULLTEXT: title, content
-
 teams
 ├── id (PK, bigint, auto_increment)
-├── api_id (integer, unique)
+├── api_id (integer, unique, nullable)
+├── nba_api_id (integer, unique, nullable)
 ├── name (string, 255)
 ├── abbreviation (string, 10)
 ├── city (string, 255)
@@ -66,32 +71,31 @@ teams
 
 players
 ├── id (PK, bigint, auto_increment)
-├── api_id (integer, unique)
+├── api_id (integer, unique, nullable)
+├── apisports_id (integer, unique, nullable)
 ├── team_id (FK → teams.id, SET NULL, nullable)
-├── full_name (string, 255)
-├── nickname (string, 255, nullable)
-├── position (string, 50)
-├── height_cm (decimal, 5,2, nullable)
+├── first_name (string, 255)
+├── last_name (string, 255)
+├── slug (string, 191, unique)
+├── position (string, 10, nullable)
+├── jersey_number (string, 10, nullable)
+├── height (string, 10, nullable)
+├── height_meters (decimal, 4,2, nullable)
+├── weight (integer, nullable)
 ├── weight_kg (decimal, 5,2, nullable)
-├── wingspan_cm (decimal, 5,2, nullable)
 ├── birth_date (date, nullable)
-├── nationality (string, 100, nullable)
-├── jersey_number (string, 5, nullable)
-├── photo_url (string, 500, nullable)
+├── country (string, 80, nullable)
+├── college (string, 255, nullable)
+├── draft_year (smallInteger, nullable)
+├── draft_round (smallInteger, nullable)
+├── draft_number (smallInteger, nullable)
+├── career_start (smallInteger, nullable)
+├── seasons_played (smallInteger, nullable)
+├── is_active (boolean) DEFAULT true
+├── season (string, 10, nullable)
 ├── created_at (timestamp)
 ├── updated_at (timestamp)
-├── INDEX: full_name, team_id
-└── FOREIGN KEY: team_id
-
-player_team_history
-├── id (PK, bigint, auto_increment)
-├── player_id (FK → players.id, CASCADE)
-├── team_id (FK → teams.id, CASCADE)
-├── start_date (date)
-├── end_date (date, nullable)
-├── created_at (timestamp)
-├── updated_at (timestamp)
-└── INDEX: player_id, team_id
+└── INDEX: team_id, position, last_name, is_active
 
 games
 ├── id (PK, bigint, auto_increment)
@@ -105,6 +109,9 @@ games
 ├── away_score (integer) DEFAULT 0
 ├── season (string, 9)
 ├── highlights (json, nullable)
+├── admin_analysis (text, nullable)
+├── analysis_text (text, nullable)
+├── analysis_text_en (text, nullable)
 ├── created_at (timestamp)
 ├── updated_at (timestamp)
 ├── INDEX: game_date, status, season
@@ -130,43 +137,29 @@ game_stats
 ├── updated_at (timestamp)
 └── INDEX: game_id, team_id
 
-player_stats_career
+posts
 ├── id (PK, bigint, auto_increment)
-├── player_id (FK → players.id, CASCADE, unique)
-├── games_played (integer) DEFAULT 0
-├── points_per_game (decimal, 5,2) DEFAULT 0
-├── rebounds_per_game (decimal, 5,2) DEFAULT 0
-├── assists_per_game (decimal, 5,2) DEFAULT 0
-├── steals_per_game (decimal, 5,2) DEFAULT 0
-├── blocks_per_game (decimal, 5,2) DEFAULT 0
-├── field_goal_percentage (decimal, 5,2) DEFAULT 0
-├── three_point_percentage (decimal, 5,2) DEFAULT 0
-├── free_throw_percentage (decimal, 5,2) DEFAULT 0
+├── user_id (FK → users.id, CASCADE)
+├── game_id (FK → games.id, SET NULL, nullable)
+├── title (string, 255)
+├── slug (string, 255, unique)
+├── content (longText)
+├── excerpt (text, nullable)
+├── cover_image (string, 500, nullable)
+├── category (enum: 'noticia', 'jogo', 'estatistica', 'recente', 'analise')
+├── status (enum: 'draft', 'published') DEFAULT 'draft'
+├── published_at (datetime, nullable)
+├── views_count (integer) DEFAULT 0
 ├── created_at (timestamp)
 ├── updated_at (timestamp)
-└── FOREIGN KEY: player_id
-
-player_stats_season
-├── id (PK, bigint, auto_increment)
-├── player_id (FK → players.id, CASCADE)
-├── season (string, 9)
-├── games_played (integer) DEFAULT 0
-├── points_per_game (decimal, 5,2) DEFAULT 0
-├── rebounds_per_game (decimal, 5,2) DEFAULT 0
-├── assists_per_game (decimal, 5,2) DEFAULT 0
-├── field_goal_percentage (decimal, 5,2) DEFAULT 0
-├── three_point_percentage (decimal, 5,2) DEFAULT 0
-├── free_throw_percentage (decimal, 5,2) DEFAULT 0
-├── created_at (timestamp)
-├── updated_at (timestamp)
-├── INDEX: player_id, season
-└── FOREIGN KEY: player_id
+├── INDEX: slug, category, status, published_at
+└── FULLTEXT: title, content
 
 comments
 ├── id (PK, bigint, auto_increment)
 ├── user_id (FK → users.id, CASCADE)
 ├── post_id (FK → posts.id, CASCADE)
-├── parent_id (FK → comments.id, SET NULL, nullable) ← replies
+├── parent_id (FK → comments.id, SET NULL, nullable)
 ├── content (text)
 ├── approved (boolean) DEFAULT false
 ├── created_at (timestamp)
@@ -189,52 +182,6 @@ donations
 ├── updated_at (timestamp)
 ├── INDEX: status, transaction_id
 └── FOREIGN KEY: user_id
-
-notifications
-├── id (PK, uuid)
-├── type (string, 255)
-├── notifiable_type (string, 255)
-├── notifiable_id (bigint)
-├── data (json)
-├── read_at (datetime, nullable)
-├── created_at (timestamp)
-├── updated_at (timestamp)
-└── INDEX: notifiable_type, notifiable_id
-
-jobs (Redis)
-├── id (PK, bigint)
-├── queue (string)
-├── payload (longText)
-├── attempts (tinyint)
-├── reserved_at (unsignedBigInteger, nullable)
-├── available_at (unsignedBigInteger)
-├── created_at (unsignedBigInteger)
-└── INDEX: queue, reserved_at, available_at
-
-failed_jobs
-├── id (PK, bigint)
-├── uuid (string, unique)
-├── connection (text)
-├── queue (text)
-├── payload (longText)
-├── exception (longText)
-├── failed_at (timestamp)
-└── INDEX: uuid
-
-cache
-├── key (string, unique)
-├── value (mediumText)
-├── expiration (integer)
-└── INDEX: key
-
-sessions
-├── id (string, unique)
-├── user_id (bigint, nullable)
-├── ip_address (string, 45, nullable)
-├── user_agent (text, nullable)
-├── payload (longText)
-├── last_activity (integer)
-└── INDEX: user_id, last_activity
 ```
 
 ---
@@ -247,97 +194,78 @@ sessions
 // ===== PÚBLICAS =====
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
-// Notícias
-Route::get('/noticias', [PostController::class, 'index'])->name('posts.index');
-Route::get('/noticias/{post:slug}', [PostController::class, 'show'])->name('posts.show');
+// Notícias & Recentes
+Route::get('/noticias', [PostController::class, 'index'])->name('noticias.index');
+Route::get('/noticias/{post:slug}', [PostController::class, 'show'])->name('noticias.show');
+Route::get('/recentes', [PostController::class, 'recentes'])->name('recentes.index');
+Route::get('/recentes/{post:slug}', [PostController::class, 'showRecente'])->name('recentes.show');
 
-// Jogos
-Route::get('/jogos', [GameController::class, 'index'])->name('games.index');
-Route::get('/jogos/{game}', [GameController::class, 'show'])->name('games.show');
+// Jogos & Calendário
+Route::get('/jogos', [GameController::class, 'index'])->name('jogos.index');
+Route::get('/jogos/{game}', [GameController::class, 'show'])->name('jogos.show');
 
-// Estatísticas
-Route::get('/estatisticas', [StatsController::class, 'index'])->name('stats.index');
-Route::get('/estatisticas/{team:abbreviation}', [StatsController::class, 'showTeam'])->name('stats.team');
-Route::get('/estatisticas/jogador/{player}', [StatsController::class, 'showPlayer'])->name('stats.player');
+// Estatísticas & Franquias
+Route::get('/estatisticas', [StatsController::class, 'index'])->name('estatisticas.index');
+Route::get('/estatisticas/{team:abbreviation}', [StatsController::class, 'showTeam'])->name('estatisticas.team');
 
-// Análises
-Route::get('/analises', [AnalysisController::class, 'index'])->name('analysis.index');
-Route::get('/analises/{post:slug}', [AnalysisController::class, 'show'])->name('analysis.show');
+// Jogadores
+Route::get('/jogadores', [PlayerController::class, 'index'])->name('jogadores.index');
+Route::get('/jogadores/{player:slug}', [PlayerController::class, 'show'])->name('jogadores.show');
 
-// Doações
+// Doações via Pix
 Route::get('/doacoes', [DonationController::class, 'index'])->name('donations.index');
 Route::post('/doacoes/gerar-pix', [DonationController::class, 'generatePix'])->name('donations.generate');
 Route::post('/doacoes/webhook', [DonationController::class, 'webhook'])->name('donations.webhook');
 
-// ===== AUTENTICAÇÃO =====
-Route::middleware('guest')->group(function () {
-    Route::get('login', [AuthenticatedSessionController::class, 'create'])->name('login');
-    Route::post('login', [AuthenticatedSessionController::class, 'store']);
-    Route::get('register', [RegisteredUserController::class, 'create'])->name('register');
-    Route::post('register', [RegisteredUserController::class, 'store']);
-    Route::get('forgot-password', [PasswordResetLinkRequestController::class, 'create'])->name('password.request');
-    Route::post('forgot-password', [PasswordResetLinkRequestController::class, 'store'])->name('password.email');
-    Route::get('reset-password/{token}', [NewPasswordController::class, 'create'])->name('password.reset');
-    Route::post('reset-password', [NewPasswordController::class, 'store'])->name('password.store');
-});
+// Preferências Globais
+Route::post('/locale', LocaleController::class)->name('locale');
+Route::post('/theme', ThemeController::class)->name('theme');
 
+// ===== AUTENTICAÇÃO & PERFIL =====
 Route::middleware('auth')->group(function () {
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
-    Route::get('verify-email', [EmailVerificationPromptController::class, 'create'])->name('verification.notice');
-    Route::get('verify-email/{id}/{hash}', [VerifyEmailController::class, '__invoke'])->middleware('signed')->name('verification.verify');
-    Route::post('email/verification-notification', [EmailVerificationNotificationController::class, 'store'])->middleware('throttle:6,1')->name('verification.send');
-    Route::get('confirm-password', [ConfirmablePasswordController::class, 'create'])->name('password.confirm');
-    Route::post('confirm-password', [ConfirmablePasswordController::class, 'store']);
     Route::get('profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    // Comentários (usuários logados)
+    // Comentários em notícias
     Route::post('/posts/{post}/comentarios', [CommentController::class, 'store'])->name('comments.store');
 });
 
-// ===== LOCALE & THEME =====
-Route::post('/locale', LocaleController::class)->name('locale');
-Route::post('/theme', ThemeController::class)->name('theme');
-
-// ===== ADMIN =====
+// ===== ADMINISTRAÇÃO =====
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
-    // Dashboard
     Route::get('/', [AdminDashboardController::class, 'index'])->name('dashboard');
 
-    // Posts (Notícias, Análises, Recentes)
+    // Recursos CRUD
     Route::resource('posts', AdminPostController::class);
-
-    // Jogos
     Route::resource('games', AdminGameController::class);
-
-    // Estatísticas
     Route::resource('stats', AdminStatsController::class);
-
-    // Times
     Route::resource('teams', AdminTeamController::class);
 
-    // Jogadores
-    Route::resource('players', AdminPlayerController::class);
+    // Jogadores (edição de complementos)
+    Route::get('/jogadores', [AdminPlayerController::class, 'index'])->name('players.index');
+    Route::get('/jogadores/{player}/editar', [AdminPlayerController::class, 'edit'])->name('players.edit');
+    Route::put('/jogadores/{player}', [AdminPlayerController::class, 'update'])->name('players.update');
 
-    // Comentários
+    // Moderação de Comentários
     Route::get('/comentarios', [AdminCommentController::class, 'index'])->name('comments.index');
     Route::post('/comentarios/{comment}/aprovar', [AdminCommentController::class, 'approve'])->name('comments.approve');
     Route::delete('/comentarios/{comment}', [AdminCommentController::class, 'destroy'])->name('comments.destroy');
+    Route::post('/comentarios/{comment}/excluir', [AdminCommentController::class, 'destroy'])->name('comments.delete');
 
-    // Usuários
+    // Gestão de Usuários
     Route::get('/usuarios', [AdminUserController::class, 'index'])->name('users.index');
     Route::post('/usuarios/{user}/bloquear', [AdminUserController::class, 'block'])->name('users.block');
     Route::delete('/usuarios/{user}', [AdminUserController::class, 'destroy'])->name('users.destroy');
 
     // Doações
     Route::get('/doacoes', [AdminDonationController::class, 'index'])->name('donations.index');
-    Route::post('/doacoes/{donation}/confirmar', [AdminDonationController::class, 'confirm'])->name('donations.confirm');
 
-    // API Sync
+    // Sincronização e utilitários
     Route::post('/sync/teams', [AdminSyncController::class, 'syncTeams'])->name('sync.teams');
-    Route::post('/sync/players', [AdminSyncController::class, 'syncPlayers'])->name('sync.players');
     Route::post('/sync/games', [AdminSyncController::class, 'syncGames'])->name('sync.games');
+    Route::get('/api/search-teams', [AdminApiController::class, 'searchTeams'])->name('api.search-teams');
+    Route::get('/api/team-info', [AdminApiController::class, 'getTeamInfo'])->name('api.team-info');
 });
 ```
 
@@ -347,36 +275,37 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 
 ```
 app/Http/Controllers/
+├── Admin/
+│   ├── AdminApiController.php         ← Endpoints JSON auxiliares (busca e info de times)
+│   ├── AdminCommentController.php     ← Moderação e exclusão de comentários
+│   ├── AdminDashboardController.php   ← Métricas consolidadas do dashboard
+│   ├── AdminDonationController.php    ← Visualização das transações Pix
+│   ├── AdminGameController.php        ← CRUD e edição de jogos
+│   ├── AdminPlayerController.php      ← Edição de atletas
+│   ├── AdminPostController.php        ← CRUD de matérias e análises
+│   ├── AdminStatsController.php       ← CRUD de estatísticas de confrontos
+│   ├── AdminSyncController.php        ← Disparador web de sincronização das APIs
+│   ├── AdminTeamController.php        ← CRUD e personalização de franquias
+│   └── AdminUserController.php        ← Bloqueio e gerência de contas de usuários
 ├── Auth/
 │   ├── AuthenticatedSessionController.php
-│   ├── RegisteredUserController.php
-│   ├── PasswordResetLinkRequestController.php
-│   ├── NewPasswordController.php
-│   ├── EmailVerificationPromptController.php
-│   ├── VerifyEmailController.php
+│   ├── ConfirmablePasswordController.php
 │   ├── EmailVerificationNotificationController.php
-│   └── ConfirmablePasswordController.php
-├── HomeController.php
-├── PostController.php
-├── GameController.php
-├── StatsController.php
-├── AnalysisController.php
-├── DonationController.php
-├── CommentController.php
-├── LocaleController.php
-├── ThemeController.php
-├── ProfileController.php
-├── Admin/
-│   ├── AdminDashboardController.php
-│   ├── AdminPostController.php
-│   ├── AdminGameController.php
-│   ├── AdminStatsController.php
-│   ├── AdminTeamController.php
-│   ├── AdminPlayerController.php
-│   ├── AdminCommentController.php
-│   ├── AdminUserController.php
-│   ├── AdminDonationController.php
-│   └── AdminSyncController.php
+│   ├── EmailVerificationPromptController.php
+│   ├── NewPasswordController.php
+│   ├── PasswordResetLinkRequestController.php
+│   ├── RegisteredUserController.php
+│   └── VerifyEmailController.php
+├── CommentController.php              ← Criação de comentários vinculados a matérias
+├── DonationController.php             ← Geração de Pix e webhook de pagamento
+├── GameController.php                 ← Calendário, detalhes e placares de jogos
+├── HomeController.php                 ← Agregador da Home
+├── LocaleController.php               ← Toggle de idioma (pt/en)
+├── PlayerController.php               ← Busca, listagem e perfil de jogadores
+├── PostController.php                 ← Listagem e exibição de Notícias e Recentes
+├── ProfileController.php              ← Edição de perfil e preferências
+├── StatsController.php                ← Classificação e visualização de franquias
+└── ThemeController.php                ← Toggle de tema (claro/escuro)
 ```
 
 ---
@@ -385,264 +314,140 @@ app/Http/Controllers/
 
 ```
 resources/views/
-├── layouts/
-│   ├── app.blade.php              ← Layout principal (nav, footer, theme)
-│   └── guest.blade.php            ← Layout para visitantes
-├── home.blade.php
-├── posts/
-│   ├── index.blade.php
-│   └── show.blade.php
-├── games/
-│   ├── index.blade.php
-│   └── show.blade.php
-├── stats/
-│   ├── index.blade.php
-│   ├── team.blade.php
-│   └── player.blade.php
-├── analysis/
-│   ├── index.blade.php
-│   └── show.blade.php
-├── donations/
-│   └── index.blade.php
-├── auth/
+├── admin/                             # Telas administrativas
+│   ├── comments/                      # Moderação de comentários
+│   ├── donations/                     # Listagem de doações Pix
+│   ├── games/ & jogos/                # Gestão de jogos
+│   ├── players/                       # Edição de jogadores
+│   ├── posts/ & noticias/             # Gestão de matérias
+│   ├── stats/ & estatisticas/         # Gestão de estatísticas
+│   ├── teams/                         # Gestão de franquias
+│   ├── users/                         # Gestão de usuários
+│   └── dashboard.blade.php            # Dashboard principal
+├── auth/                              # Telas de autenticação (Breeze)
 │   ├── login.blade.php
 │   ├── register.blade.php
 │   ├── forgot-password.blade.php
 │   ├── reset-password.blade.php
 │   ├── verify-email.blade.php
 │   └── confirm-password.blade.php
-├── profile/
+├── components/                        # Componentes reutilizáveis
+│   ├── game-card.blade.php
+│   ├── post-card.blade.php
+│   ├── team-card.blade.php
+│   └── player-card.blade.php
+├── donations/                         # Fluxo de doação via Pix
+│   ├── index.blade.php
+│   └── pix.blade.php
+├── emails/                            # Templates HTML para e-mails (SMTP)
+│   └── new_post.blade.php
+├── estatisticas/                      # Visualização pública de franquias
+│   ├── index.blade.php
+│   └── team.blade.php
+├── jogos/ & games/                    # Visualização pública de partidas
+│   ├── index.blade.php
+│   └── show.blade.php
+├── jogadores/                         # Visualização pública de atletas
+│   ├── index.blade.php
+│   └── show.blade.php
+├── layouts/                           # Layouts mestres com Bootstrap 5.3
+│   ├── app.blade.php                  # Layout principal com barra e footer
+│   ├── guest.blade.php                # Layout para telas de login/registro
+│   └── navigation.blade.php           # Barra de navegação
+├── noticias/ & posts/ & recentes/     # Listagem e leitura de matérias
+│   ├── index.blade.php
+│   └── show.blade.php
+├── profile/                           # Gestão de perfil de usuário
 │   ├── edit.blade.php
 │   └── partials/
-│       ├── update-profile-information-form.blade.php
-│       └── update-password-form.blade.php
-├── components/
-│   ├── post-card.blade.php
-│   ├── game-card.blade.php
-│   ├── team-card.blade.php
-│   ├── player-card.blade.php
-│   └── comment.blade.php
-├── emails/
-│   ├── welcome.blade.php
-│   ├── new-comment.blade.php
-│   └── donation-confirmed.blade.php
-└── admin/
-    ├── dashboard.blade.php
-    ├── posts/
-    │   ├── index.blade.php
-    │   ├── create.blade.php
-    │   └── edit.blade.php
-    ├── games/
-    │   ├── index.blade.php
-    │   ├── create.blade.php
-    │   └── edit.blade.php
-    ├── stats/
-    │   ├── index.blade.php
-    │   ├── create.blade.php
-    │   └── edit.blade.php
-    ├── teams/
-    │   ├── index.blade.php
-    │   ├── create.blade.php
-    │   └── edit.blade.php
-    ├── players/
-    │   ├── index.blade.php
-    │   ├── create.blade.php
-    │   └── edit.blade.php
-    ├── comments/
-    │   └── index.blade.php
-    ├── users/
-    │   └── index.blade.php
-    └── donations/
-        └── index.blade.php
+└── home.blade.php                     # Página inicial do portal
 ```
 
 ---
 
-## 6. Arquitetura de Integração com API Externa
+## 6. Arquitetura de Serviços & Sincronização
 
-### 6.1 Services
+### 6.1 Services Especializados (`app/Services/`)
 
-```
-app/Services/
-├── BalldontlieService.php      ← dados de jogadores e times
-├── ApiSportsService.php        ← jogos e placares
-├── PixService.php              ← geração de QR Code Pix
-└── NbaSyncService.php          ← orquestra sincronização
-```
+1. **`BalldontlieService.php`**: Conecta à API [balldontlie.io](https://balldontlie.io) para obter franquias e catálogo de atletas.
+2. **`ApiSportsService.php`**: Conecta à API [v1.basketball.api-sports.io](https://api-sports.io) para obter jogos, placares em tempo real e temporadas.
+3. **`PlayerSyncService.php`**: Orquestra a sincronização, enriquecimento e vinculação dos atletas com seus respectivos times.
+4. **`PixService.php`**: Gera a payload TLV do padrão Pix EMV (Copia e Cola) e renderiza o QR Code via biblioteca `chillerlan/php-qrcode`.
+5. **`NewsGenerator.php`**: Gera resumos jornalísticos automáticos a partir do encerramento das partidas.
+6. **`GameAnalysis.php`**: Constrói relatórios analíticos táticos pré e pós-jogo.
 
-### 6.2 Jobs
+---
 
-```
-app/Jobs/
-├── SyncTeamsJob.php
-├── SyncPlayersJob.php
-├── SyncGamesJob.php
-├── SendWelcomeEmailJob.php
-├── SendNewCommentEmailJob.php
-├── SendDonationConfirmedEmailJob.php
-└── ProcessDonationWebhookJob.php
-```
+### 6.2 Fluxo de Sincronização
 
-### 6.3 Scheduler
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Scheduler as Agendador Diário (Cron)
+    participant NbaSync as Artisan Command (nba:sync)
+    participant Balldontlie as BalldontlieService
+    participant ApiSports as ApiSportsService
+    participant PlayerSync as PlayerSyncService
+    participant Database as Banco de Dados (MySQL)
 
-```php
-// routes/console.php
-Schedule::command('nba:sync --type=teams')->daily();
-Schedule::command('nba:sync --type=players')->daily();
-Schedule::command('nba:sync --type=games')->daily();
-```
-
-### 6.4 Fluxo de Sincronização
-
-```
-[Scheduler diário] → [SyncTeamsJob] → [BalldontlieService::getTeams()] → [Team::updateOrCreate()]
-                                    → [SyncPlayersJob] → [BalldontlieService::getPlayers()] → [Player::updateOrCreate()]
-                                    → [SyncGamesJob] → [ApiSportsService::getGames()] → [Game::updateOrCreate()]
-```
-
-### 6.5 Fluxo de Doação Pix
-
-```
-[Usuário clica "Gerar Pix"]
-    → [DonationController::generatePix()]
-    → [PixService::generatePayload()]
-    → [PixService::generateQrCode()]
-    → [Donation::create()]
-    → [Exibe QR Code ao usuário]
-
-[Webhook do gateway recebido]
-    → [DonationController::webhook()]
-    → [ProcessDonationWebhookJob]
-    → [Donation::update(status=confirmed)]
-    → [SendDonationConfirmedEmailJob]
+    Scheduler->>NbaSync: Executa Schedule::command('nba:sync')
+    alt Sincronizar Times
+        NbaSync->>Balldontlie: getTeams()
+        Balldontlie-->>NbaSync: Dados das Franquias
+        NbaSync->>Database: Team::updateOrCreate()
+    end
+    alt Sincronizar Jogos
+        NbaSync->>ApiSports: getGames(season)
+        ApiSports-->>NbaSync: Jogos e Placares
+        NbaSync->>Database: Game::updateOrCreate()
+    end
+    alt Sincronizar Jogadores
+        NbaSync->>PlayerSync: syncPlayers()
+        PlayerSync->>Database: Player::updateOrCreate()
+    end
 ```
 
 ---
 
-## 7. Middlewares
+## 7. Status do Desenvolvimento
 
-```
-app/Http/Middleware/
-├── EnsureUserIsAdmin.php       ← verifica role === 'admin'
-├── LocaleMiddleware.php        ← define idioma (pt/en)
-└── ThemeMiddleware.php         ← define tema (light/dark)
-```
-
----
-
-## 8. Mailables
-
-```
-app/Mail/
-├── WelcomeMail.php
-├── NewCommentMail.php
-└── DonationConfirmedMail.php
-```
+| Fase | Escopo | Status |
+|---|---|:---:|
+| **Fase 1: Fundação** | Setup Laravel 13, migrations, models, autenticação Breeze, layout Bootstrap 5 | ✅ Concluído |
+| **Fase 2: Páginas Públicas** | Home, Notícias, Recentes, Jogos, Franquias, Jogadores e Análises | ✅ Concluído |
+| **Fase 3: Painel Admin** | Dashboard de métricas, moderação de comentários, CRUDs e gestão de contas | ✅ Concluído |
+| **Fase 4: APIs & Sync** | Integrações balldontlie.io, API-Sports, comandos Artisan e Scheduler | ✅ Concluído |
+| **Fase 5: Doações Pix** | Geração de payload EMV, QR Code interativo e controle de transações | ✅ Concluído |
+| **Fase 6: Otimizações** | Tema Claro/Escuro dinâmico, internacionalização PT/EN e Dockerfile | ✅ Concluído |
 
 ---
 
-## 9. Traduções
-
-```
-lang/
-├── pt/
-│   └── messages.php
-└── en/
-    └── messages.php
-```
-
----
-
-## 10. Plano de Desenvolvimento em Fases
-
-### Fase 1 — Fundação (Semana 1)
-- [x] Criar projeto Laravel 11
-- [x] Instalar Breeze (Blade)
-- [x] Configurar MySQL
-- [x] Criar migrations e models
-- [x] Configurar autenticação
-- [x] Middleware admin
-- [x] Layout base (Bootstrap 5)
-
-### Fase 2 — Páginas Públicas (Semana 2)
-- [ ] Home com destaques
-- [ ] Listagem de notícias
-- [ ] Página de notícia
-- [ ] Listagem de jogos
-- [ ] Página de jogo
-- [ ] Estatísticas por time
-- [ ] Ficha de jogador
-- [ ] Análises/Opiniões
-
-### Fase 3 — Painel Admin (Semana 3)
-- [ ] Dashboard com estatísticas
-- [ ] CRUD Notícias
-- [ ] CRUD Jogos
-- [ ] CRUD Estatísticas
-- [ ] CRUD Análises
-- [ ] Gerenciar Comentários
-- [ ] Gerenciar Usuários
-- [ ] Gerenciar Doações
-
-### Fase 4 — APIs e Sincronização (Semana 4)
-- [ ] Integrar balldontlie.io
-- [ ] Integrar API-Sports
-- [ ] Jobs de sincronização
-- [ ] Scheduler
-- [ ] Cache Redis
-
-### Fase 5 — Doações e Notificações (Semana 5)
-- [ ] Sistema de doação Pix
-- [ ] Webhook de confirmação
-- [ ] E-mails de notificação
-- [ ] Filas Redis
-
-### Fase 6 — Extras (Semana 6)
-- [ ] Modo claro/escuro
-- [ ] Internacionalização PT/EN
-- [ ] Docker Compose
-- [ ] Testes
-- [ ] Deploy
-
----
-
-## 11. Comandos Úteis
+## 8. Comandos Artisan Úteis
 
 ```bash
-# Sincronizar dados da NBA
-php artisan nba:sync --type=teams
-php artisan nba:sync --type=players
-php artisan nba:sync --type=games
+# Sincronização de dados das APIs
+php artisan nba:sync
+php artisan nba:sync --only=teams
+php artisan nba:sync --only=games
+php artisan nba:sync --only=players
+php artisan nba:sync --season=2024 --fresh
 
-# Criar admin
-php artisan db:seed --class=AdminUserSeeder
+# Gestão de usuários e administradores
+php artisan make:user --admin --name="Admin" --email=admin@basqnba.com --password=admin123
 
-# Limpar caches
-php artisan config:clear
-php artisan cache:clear
-php artisan route:clear
-php artisan view:clear
+# Geração automática de notícias e análises de confrontos
+php artisan nba:generate-news
+php artisan nba:generate-analysis
 
-# Rodar filas
-php artisan queue:work redis
+# Higienização e ajustes de integridade no banco de dados
+php artisan nba:fix-teams
+php artisan nba:fix-game-times
+php artisan nba:clean-db --dry-run
 
-# Rodar agendador
+# Execução do agendador e filas
 php artisan schedule:run
-```
+php artisan queue:work
 
----
-
-## 12. Credenciais de Teste
-
-```
-Admin:
-  Email: admin@tudonba.com
-  Senha: Admin@123
-
-MySQL:
-  Host: 127.0.0.1
-  Port: 3306
-  Database: nba_website
-  User: root
-  Password: (vazio)
+# Limpeza completa de cache de aplicação
+php artisan optimize:clear
 ```

@@ -41,6 +41,7 @@ return [
 
     'apisports' => [
         'key' => env('APISPORTS_KEY'),
+        'season' => (int) env('APISPORTS_SEASON', 2024),
     ],
 
     'pix' => [

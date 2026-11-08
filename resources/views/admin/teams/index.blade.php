@@ -17,7 +17,6 @@
                 <table class="table table-hover">
                     <thead>
                         <tr>
-                            <th>Logo</th>
                             <th>Nome</th>
                             <th>Abreviação</th>
                             <th>Conferência</th>
@@ -28,7 +27,6 @@
                     <tbody>
                         @forelse($teams as $team)
                             <tr>
-                                <td><img src="{{ $team->logo }}" alt="" style="width:40px;"></td>
                                 <td>{{ $team->name }}</td>
                                 <td>{{ $team->abbreviation }}</td>
                                 <td><span class="badge bg-{{ $team->conference === 'East' ? 'primary' : 'danger' }}">{{ $team->conference }}</span></td>
@@ -49,7 +47,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="text-center text-muted">{{ __('messages.no_results') }}</td>
+                                <td colspan="5" class="text-center text-muted">{{ __('messages.no_results') }}</td>
                             </tr>
                         @endforelse
                     </tbody>

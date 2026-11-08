@@ -46,13 +46,10 @@ class GameController extends Controller
     {
         $game->load(['homeTeam', 'awayTeam', 'stats.team']);
 
-        $homeWon = $game->home_score > $game->away_score;
-        $winner = $homeWon ? $game->homeTeam : $game->awayTeam;
-        $loser = $homeWon ? $game->awayTeam : $game->homeTeam;
-        $score = $game->home_score . '-' . $game->away_score;
-
-        $analysisService = new GameAnalysis();
-        $analysis = $analysisService->generate($winner->name, $loser->name, $score, $game->game_date);
+        // Lê o texto ja salvo no idioma ativo. Usar generate() aqui fazia o
+        // paragrafo trocar de variante a cada visita, porque o gerador sorteia
+        // um template aleatorio.
+        $analysis = (new GameAnalysis())->forGame($game);
 
         return view('jogos.show', compact('game', 'analysis'));
     }

@@ -16,7 +16,7 @@ class AdminStatsController extends Controller
             ->latest()
             ->paginate(15);
 
-        return view('admin.stats.index', compact('stats'));
+        return view('admin.estatisticas.index', compact('stats'));
     }
 
     public function create()
@@ -24,7 +24,7 @@ class AdminStatsController extends Controller
         $games = Game::orderBy('game_date', 'desc')->get();
         $teams = Team::orderBy('name')->get();
 
-        return view('admin.stats.create', compact('games', 'teams'));
+        return view('admin.estatisticas.create', compact('games', 'teams'));
     }
 
     public function store(Request $request)
@@ -48,8 +48,8 @@ class AdminStatsController extends Controller
 
         GameStat::create($validated);
 
-        return redirect()->route('admin.stats.index')
-            ->with('success', 'Estatística criada com sucesso!');
+        return redirect()->route('admin.estatisticas.index')
+            ->with('success', 'EstatÃ­stica criada com sucesso!');
     }
 
     public function edit(GameStat $stat)
@@ -57,7 +57,7 @@ class AdminStatsController extends Controller
         $games = Game::orderBy('game_date', 'desc')->get();
         $teams = Team::orderBy('name')->get();
 
-        return view('admin.stats.edit', compact('stat', 'games', 'teams'));
+        return view('admin.estatisticas.edit', compact('stat', 'games', 'teams'));
     }
 
     public function update(Request $request, GameStat $stat)
@@ -81,15 +81,15 @@ class AdminStatsController extends Controller
 
         $stat->update($validated);
 
-        return redirect()->route('admin.stats.index')
-            ->with('success', 'Estatística atualizada com sucesso!');
+        return redirect()->route('admin.estatisticas.index')
+            ->with('success', 'EstatÃ­stica atualizada com sucesso!');
     }
 
     public function destroy(GameStat $stat)
     {
         $stat->delete();
 
-        return redirect()->route('admin.stats.index')
-            ->with('success', 'Estatística removida com sucesso!');
+        return redirect()->route('admin.estatisticas.index')
+            ->with('success', 'EstatÃ­stica removida com sucesso!');
     }
 }

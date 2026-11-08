@@ -13,14 +13,14 @@
             </div>
 
             <article>
-                <span class="badge bg-warning text-dark mb-3"><i class="bi bi-lightning-fill"></i> Notícia Recente</span>
+                <span class="badge bg-warning text-dark mb-3"><i class="bi bi-lightning-fill"></i> {{ __('messages.recent_news') }}</span>
 
                 <h1 class="mb-3">{{ $post->title }}</h1>
 
                 <div class="d-flex align-items-center text-muted mb-4 flex-wrap gap-3">
                     <span><i class="bi bi-person"></i> {{ $post->user->name }}</span>
                     <span><i class="bi bi-calendar"></i> {{ $post->published_at->format('d/m/Y H:i') }}</span>
-                    <span><i class="bi bi-eye"></i> {{ $post->views_count }} visualizações</span>
+                    <span><i class="bi bi-eye"></i> {{ $post->views_count }} {{ __('messages.views') }}</span>
                 </div>
 
                 @if($post->cover_image)
@@ -41,13 +41,13 @@
                     <form method="POST" action="{{ route('comments.store', $post) }}" class="mb-4">
                         @csrf
                         <div class="mb-3">
-                            <textarea name="content" class="form-control" rows="3" placeholder="Escreva seu comentário..." required>{{ old('content') }}</textarea>
+                            <textarea name="content" class="form-control" rows="3" placeholder="{{ __('messages.comment_placeholder') }}" required>{{ old('content') }}</textarea>
                         </div>
-                        <button type="submit" class="btn btn-warning">Enviar comentário</button>
+                        <button type="submit" class="btn btn-warning">{{ __('messages.submit_comment') }}</button>
                     </form>
                 @else
                     <div class="alert alert-info">
-                        <a href="{{ route('login') }}">Faça login</a> para comentar.
+                        {{ __('messages.login_to_comment') }}
                     </div>
                 @endauth
 
@@ -62,7 +62,7 @@
                         </div>
                     </div>
                 @empty
-                    <p class="text-muted">Nenhum comentário ainda. Seja o primeiro!</p>
+                    <p class="text-muted">{{ __('messages.no_comments_first') }}</p>
                 @endforelse
             </section>
         </div>
@@ -70,7 +70,7 @@
         <div class="col-lg-4">
             <div class="card mb-4">
                 <div class="card-header bg-warning">
-                    <h5 class="mb-0"><i class="bi bi-lightning"></i> Mais Notícias Recentes</h5>
+                    <h5 class="mb-0"><i class="bi bi-lightning"></i> {{ __('messages.more_recent_news') }}</h5>
                 </div>
                 <div class="card-body">
                     @forelse($relatedPosts as $related)
@@ -89,7 +89,7 @@
                             </div>
                         </div>
                     @empty
-                        <p class="text-muted mb-0">Nenhuma notícia recente.</p>
+                        <p class="text-muted mb-0">{{ __('messages.no_recent_news') }}</p>
                     @endforelse
                 </div>
             </div>

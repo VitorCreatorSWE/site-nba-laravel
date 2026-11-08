@@ -21,8 +21,7 @@ class CommentController extends Controller
             'approved' => true,
         ]);
 
-        return redirect()->route('noticias.show', $post->slug)
-            ->with('success', __('messages.comment_pending'));
+        return redirect()->route('noticias.show', $post->slug);
     }
 
     public function approve(Comment $comment)

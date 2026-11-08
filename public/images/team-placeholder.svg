@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200" role="img" aria-label="Emblema generico de time">
+  <rect width="200" height="200" rx="24" fill="#e2e6ea"/>
+  <path d="M100 34 L150 50 V104 C150 134 127 158 100 168 C73 158 50 134 50 104 V50 Z"
+        fill="none" stroke="#8b959e" stroke-width="7" stroke-linejoin="round"/>
+  <circle cx="100" cy="98" r="17" fill="none" stroke="#8b959e" stroke-width="7"/>
+</svg>

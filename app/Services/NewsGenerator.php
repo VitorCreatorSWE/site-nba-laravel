@@ -4,8 +4,10 @@ namespace App\Services;
 
 use App\Models\Post;
 use App\Models\Game;
+use App\Models\Team;
 use App\Models\User;
 use Illuminate\Support\Str;
+use RuntimeException;
 
 class NewsGenerator
 {
@@ -23,9 +25,16 @@ class NewsGenerator
 
     public function generateForGame(Game $game): void
     {
+        $winner = $game->home_score > $game->away_score ? $game->homeTeam : $game->awayTeam;
+        $loser = $game->home_score > $game->away_score ? $game->awayTeam : $game->homeTeam;
+
+        if (! $winner || ! $loser) {
+            throw new RuntimeException(
+                "Jogo {$game->id} (api_id {$game->api_id}) aponta para um time inexistente na tabela teams. Rode \"php artisan nba:sync --only=teams\"."
+            );
+        }
+
         $homeWon = $game->home_score > $game->away_score;
-        $winner = $homeWon ? $game->homeTeam : $game->awayTeam;
-        $loser = $homeWon ? $game->awayTeam : $game->homeTeam;
         $winnerScore = $homeWon ? $game->home_score : $game->away_score;
         $loserScore = $homeWon ? $game->away_score : $game->home_score;
         $score = $winnerScore . '-' . $loserScore;
@@ -45,13 +54,11 @@ class NewsGenerator
 
         $excerpt = $winner->name . ' derrotou ' . $loser->name . ' por ' . $score . ' em uma partida de puro espetáculo.';
 
-        $admin = User::where('role', 'admin')->first() ?? User::first();
-
         Post::create([
-            'user_id' => $admin->id,
+            'user_id' => $this->authorId(),
             'game_id' => $game->id,
             'title' => $title,
-            'slug' => Str::slug($title),
+            'slug' => $this->uniqueSlug($title),
             'content' => '<p>' . $content . '</p>',
             'excerpt' => $excerpt,
             'category' => 'noticia',
@@ -61,21 +68,56 @@ class NewsGenerator
         ]);
     }
 
+    /**
+     * posts.user_id is NOT NULL, so generated stories need an author. Rather
+     * than crashing on a null property, fail with something actionable.
+     */
+    private function authorId(): int
+    {
+        $author = User::where('role', 'admin')->first() ?? User::orderBy('id')->first();
+
+        if (! $author) {
+            throw new RuntimeException(
+                'Nao existe nenhum usuario para|authorar as noticias (posts.user_id e obrigatorio). '
+                . 'Crie um admin com "php artisan make:user" ou cadastre-se pelo site antes de rodar "php artisan nba:generate-news".'
+            );
+        }
+
+        return (int) $author->id;
+    }
+
+    private function uniqueSlug(string $title): string
+    {
+        $base = Str::slug($title) ?: 'noticia';
+        $slug = $base;
+        $suffix = 2;
+
+        while (Post::where('slug', $slug)->exists()) {
+            $slug = $base . '-' . $suffix;
+            $suffix++;
+        }
+
+        return $slug;
+    }
+
     public function generateForAllFinishedGames(): int
     {
-        $games = Game::where('status', 'finished')
-            ->with('homeTeam', 'awayTeam')
-            ->get();
+        // Validado antes do loop para nao percorre milhares de jogos e so
+        // entao descobrir que nao existe autor.
+        $this->authorId();
 
         $count = 0;
-        foreach ($games as $game) {
-            if (Post::where('game_id', $game->id)->exists()) {
-                continue;
-            }
 
-            $this->generateForGame($game);
-            $count++;
-        }
+        Game::where('status', 'finished')
+            ->whereDoesntHave('post')
+            ->with('homeTeam', 'awayTeam')
+            ->orderBy('id')
+            ->chunkById(100, function ($games) use (&$count) {
+                foreach ($games as $game) {
+                    $this->generateForGame($game);
+                    $count++;
+                }
+            });
 
         return $count;
     }

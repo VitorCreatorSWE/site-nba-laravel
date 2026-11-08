@@ -9,8 +9,6 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rules;
-use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class RegisteredUserController extends Controller
@@ -30,10 +28,24 @@ class RegisteredUserController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+        $allowedEmails = ['admin@basq.nba', 'usuario@basq.nba'];
+
         $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'name' => ['required', 'string', 'max:255', 'unique:'.User::class],
+            'email' => [
+                'required', 'string', 'lowercase', 'email', 'max:255',
+                'unique:'.User::class,
+                function ($attribute, $value, $fail) use ($allowedEmails) {
+                    if (!in_array($value, $allowedEmails, true) && !str_ends_with($value, '@gmail.com')) {
+                        $fail(__('messages.email_gmail_only'));
+                    }
+                },
+            ],
+            'password' => ['required', 'confirmed', 'min:6'],
+        ], [
+            'name.unique' => __('messages.name_unique'),
+            'email.unique' => __('messages.email_unique'),
+            'password.min' => __('messages.password_min_6'),
         ]);
 
         $user = User::create([

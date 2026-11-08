@@ -1,13 +1,13 @@
 @extends('layouts.app')
 
-@section('title', 'Notícias Recentes - Basq NBA')
+@section('title', __('messages.recent_news') . ' - Basq NBA')
 
 @section('content')
 <div class="container py-5">
     <div class="row mb-4">
         <div class="col">
-            <h1 class="mb-2"><i class="bi bi-lightning"></i> Notícias Recentes</h1>
-            <p class="text-muted">As últimas notícias e atualizações da NBA em tempo real</p>
+            <h1 class="mb-2"><i class="bi bi-lightning"></i> {{ __('messages.recent_news') }}</h1>
+            <p class="text-muted">{{ __('messages.recent_news_subtitle') }}</p>
         </div>
     </div>
 
@@ -33,7 +33,7 @@
                             </div>
                         @endif
                         <div class="card-body">
-                            <span class="badge bg-warning text-dark mb-2"><i class="bi bi-lightning-fill"></i> Recente</span>
+                            <span class="badge bg-warning text-dark mb-2"><i class="bi bi-lightning-fill"></i> {{ __('messages.recent') }}</span>
                             <h5 class="card-title">{{ $post->title }}</h5>
                             <p class="card-text text-muted">{{ Str::limit($post->excerpt ?? strip_tags($post->content), 120) }}</p>
                         </div>
@@ -44,7 +44,7 @@
                                     <span class="mx-1">•</span>
                                     {{ $post->published_at->format('d/m/Y H:i') }}
                                 </small>
-                                <a href="{{ route('recentes.show', $post->slug) }}" class="btn btn-sm btn-outline-warning">Ler mais</a>
+                                <a href="{{ route('recentes.show', $post->slug) }}" class="btn btn-sm btn-outline-warning">{{ __('messages.read_more') }}</a>
                             </div>
                         </div>
                     </div>
@@ -58,7 +58,7 @@
     @else
         <div class="text-center py-5">
             <i class="bi bi-lightning text-muted" style="font-size:4rem;"></i>
-            <p class="mt-3 text-muted">Nenhuma notícia recente encontrada.</p>
+            <p class="mt-3 text-muted">{{ __('messages.no_recent_news') }}</p>
         </div>
     @endif
 </div>

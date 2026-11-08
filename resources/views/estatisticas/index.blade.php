@@ -15,24 +15,17 @@
         @forelse($teams as $team)
             <div class="col-md-6 col-lg-4 col-xl-3">
                 <a href="{{ route('estatisticas.team', $team) }}" class="text-decoration-none">
-                    <div class="card h-100 text-center team-card shadow-sm" style="transition: transform 0.2s;" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='none'">
-                        <div class="card-body">
-                            <img src="{{ $team->logo }}" alt="{{ $team->name }}" class="mb-3" style="width:80px;height:80px;">
-                            <h5 class="card-title text-dark">{{ $team->name }}</h5>
-                            <p class="text-muted mb-1">{{ $team->city }}</p>
-                            <span class="badge bg-{{ $team->conference === 'East' ? 'primary' : 'danger' }}">
-                                {{ $team->conference }}ern Conference
-                            </span>
-                            <p class="mt-2 mb-0">
+                    <div class="card h-100 text-center team-card shadow-sm d-flex" style="transition: transform 0.2s;min-height:200px;" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='none'">
+                        <div class="card-body d-flex flex-column flex-grow-1">
+                            <h5 class="card-title mb-1">{{ $team->name }}</h5>
+                            <p class="text-muted mb-3">{{ $team->city }}</p>
+                            <div class="d-flex flex-column align-items-center gap-1 mt-auto">
+                                <small class="text-muted">{{ $team->conference === 'East' ? 'Eastern' : 'Western' }} Conference</small>
                                 <small class="text-muted">{{ $team->division }} Division</small>
-                            </p>
-                            @if($team->championships_count > 0)
-                                <p class="mt-2 mb-0">
-                                    <span class="badge bg-warning text-dark">
-                                        <i class="bi bi-trophy"></i> {{ $team->championships_count }} {{ $team->championships_count > 1 ? __('messages.titles') : __('messages.title') }}
-                                    </span>
-                                </p>
-                            @endif
+                                <span class="badge mt-1 {{ $team->championships_count > 0 ? 'bg-warning text-dark' : 'bg-danger' }}">
+                                    <i class="bi bi-trophy"></i> {{ $team->championships_count }} {{ $team->championships_count > 1 ? __('messages.titles') : __('messages.title') }}
+                                </span>
+                            </div>
                         </div>
                     </div>
                 </a>

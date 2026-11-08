@@ -59,6 +59,9 @@
                         <a class="nav-link" href="{{ route('jogos.index') }}"><i class="bi bi-calendar3"></i> {{ __('messages.games') }}</a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link" href="{{ route('jogadores.index') }}"><i class="bi bi-people"></i> {{ __('messages.players') }}</a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="{{ route('estatisticas.index') }}"><i class="bi bi-bar-chart"></i> {{ __('messages.stats') }}</a>
                     </li>
                     <li class="nav-item">
@@ -118,6 +121,13 @@
     @if(session('success'))
         <div class="alert alert-success alert-dismissible fade show" role="alert">
             {{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    @endif
+
+    @if(session('error'))
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            {{ session('error') }}
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     @endif

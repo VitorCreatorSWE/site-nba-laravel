@@ -108,6 +108,32 @@ class Post extends Model
         return "<p>{$winner} defeated {$loser} {$score} in an exciting NBA game. Both teams played with intensity from the opening tip, trading big shots and strong defensive plays throughout the matchup.</p><p>The game remained competitive until the final minutes. {$winner} found the right answers under pressure, controlled the closing possessions and secured a well-deserved victory over {$loser}.</p>";
     }
 
+    /**
+     * Pool local de imagens de capa — o mesmo carrossel da aba noticias.
+     */
+    public const NEWS_IMAGES = ['FxxaP.jpg', 'ZiRD0.jpg', 'sKunT.jpg', 'so1kB.jpg', 'ZwTSd.jpg', 'upJiz.jpg'];
+
+    /**
+     * Capa da noticia.
+     *
+     * As capas geradas apontavam para o CDN da NBA, que tem restricao de
+     * licenca. URLs do CDN sao ignoradas e a capa passa a vir do pool local
+     * de public/images (mesma configuração da aba noticias), escolhida de
+     * forma estavel por id. Uma URL propria cadastrada pelo admin e respeitada.
+     */
+    public function getCoverImageAttribute($value)
+    {
+        if ($value && ! str_contains($value, 'cdn.nba.com')) {
+            return $value;
+        }
+
+        if (! $this->id) {
+            return $value;
+        }
+
+        return asset('images/' . self::NEWS_IMAGES[$this->id % count(self::NEWS_IMAGES)]);
+    }
+
     private function englishGameData(): array
     {
         $game = $this->game;

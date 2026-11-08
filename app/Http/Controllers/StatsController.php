@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Team;
 use App\Models\Game;
+use App\Models\Player;
 use App\Models\GameStat;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -54,26 +55,31 @@ class StatsController extends Controller
                 $loser = $homeWon ? $game->awayTeam : $game->homeTeam;
                 $score = $game->home_score . '-' . $game->away_score;
 
-                $analysisService = new GameAnalysis();
-                $analysis = $analysisService->generate(
-                    $winner->name,
-                    $loser->name,
-                    $score,
-                    $game->game_date
-                );
-
                 return [
                     'game' => $game,
-                    'analysis' => $analysis,
+                    // Lê o texto do idioma ativo; só grava quando ainda não existe.
+                    'analysis' => (new GameAnalysis())->forGame($game),
                 ];
-            });
+            })
+            ->filter(fn ($item) => $item['analysis'] !== null)
+            ->values();
+
+        // Elenco atual. active() restringe ao roster da temporada em vez de
+        // trazer os jogadores historicos que a balldontlie popula como fallback.
+        $roster = Player::query()
+            ->where('team_id', $team->id)
+            ->active()
+            ->orderBy('position')
+            ->orderBy('last_name')
+            ->get();
 
         return view('estatisticas.team', compact(
             'team',
             'gamesWon',
             'gamesTotal',
             'winRate',
-            'recentGames'
+            'recentGames',
+            'roster'
         ));
     }
 

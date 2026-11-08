@@ -21,6 +21,7 @@ class Game extends Model
         'season',
         'highlights',
         'admin_analysis',
+        'analysis_text',
     ];
 
     protected function casts(): array

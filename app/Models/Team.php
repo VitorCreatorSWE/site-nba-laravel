@@ -41,10 +41,42 @@ class Team extends Model
         return $this->hasMany(GameStat::class);
     }
 
-    public function getLogoAttribute()
+    public function players()
     {
-        if ($this->logo_url) return $this->logo_url;
-        if ($this->nba_api_id) return "https://cdn.nba.com/logos/nba/{$this->nba_api_id}/global/L/logo.svg";
-        return asset('images/placeholder.svg');
+        return $this->hasMany(Player::class);
     }
+
+    public static function currentAbbreviations(): array
+    {
+        return array_keys(config('nba.teams', []));
+    }
+
+    public static function currentTeamData(): array
+    {
+        return config('nba.teams', []);
+    }
+
+/**
+ * Emblema generico, usado quando o time nao tem nba_api_id.
+ *
+ * Guardado sem a barra inicial para poder virar tanto asset() nas views
+ * quanto caminho relativo no banco (que continua valendo se o host mudar).
+ */
+public const NEUTRAL_LOGO = 'images/team-placeholder.svg';
+
+/**
+ * Emblema exibido no lugar do time.
+ *
+ * teams.logo_url tem precedencia: e o caminho para cadastrar um asset com
+ * licenca propria. Sem ele, usa o emblema neutro local — os escudos do CDN
+ * da NBA sao marca registrada e nao podem ser usados sem licenca.
+ */
+public function getLogoAttribute()
+{
+    if ($this->logo_url) {
+        return $this->logo_url;
+    }
+
+    return asset(self::NEUTRAL_LOGO);
+}
 }

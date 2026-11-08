@@ -26,7 +26,7 @@
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <label for="cover_image" class="form-label">URL da Imagem de Capa</label>
-                                <input type="url" name="cover_image" id="cover_image" class="form-control" value="{{ old('cover_image') }}">
+                                <input type="text" name="cover_image" id="cover_image" class="form-control" value="{{ old('cover_image') }}">
                             </div>
                             <div class="col-md-6">
                                 <label for="status" class="form-label">Status *</label>

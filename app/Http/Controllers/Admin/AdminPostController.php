@@ -53,7 +53,7 @@ class AdminPostController extends Controller
             'title' => 'required|string|max:255',
             'content' => 'required|string',
             'excerpt' => 'nullable|string|max:500',
-            'cover_image' => 'nullable|url|max:500',
+            'cover_image' => ['nullable','string','max:500','regex:/^(https?:\/\/\S+|\/[\w\-\.\/]+)$/'],
             'category' => 'required|in:noticia,jogo,estatistica,recente,analise',
             'status' => 'required|in:draft,published',
         ]);
@@ -82,7 +82,7 @@ class AdminPostController extends Controller
             'title' => 'required|string|max:255',
             'content' => 'required|string',
             'excerpt' => 'nullable|string|max:500',
-            'cover_image' => 'nullable|url|max:500',
+            'cover_image' => ['nullable','string','max:500','regex:/^(https?:\/\/\S+|\/[\w\-\.\/]+)$/'],
             'category' => 'required|in:noticia,jogo,estatistica,recente,analise',
             'status' => 'required|in:draft,published',
         ]);

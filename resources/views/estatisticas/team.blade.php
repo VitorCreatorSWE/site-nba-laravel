@@ -14,11 +14,18 @@
         <div class="col-lg-4 mb-4">
             <div class="card shadow">
                 <div class="card-body text-center">
-                    <img src="{{ $team->logo }}" alt="{{ $team->name }}" class="mb-3" style="width:120px;">
-                    <h2>{{ $team->name }}</h2>
-                    <p class="text-muted">{{ $team->city }} • {{ $team->conference }}ern Conference</p>
+                    <h2 class="mb-1">{{ $team->name }}</h2>
+                    <p class="text-muted mb-3">{{ $team->city }}</p>
 
-                    <div class="row mt-4">
+                    <div class="d-flex flex-column align-items-center gap-1 mb-4">
+                        <small class="text-muted">{{ $team->conference === 'East' ? 'Eastern' : 'Western' }} Conference</small>
+                        <small class="text-muted">{{ $team->division }} Division</small>
+                        <span class="badge mt-1 {{ $team->championships_count > 0 ? 'bg-warning text-dark' : 'bg-danger' }}">
+                            <i class="bi bi-trophy"></i> {{ $team->championships_count }} {{ $team->championships_count > 1 ? __('messages.titles') : __('messages.title') }}
+                        </span>
+                    </div>
+
+                    <div class="row">
                         <div class="col-4">
                             <div class="h3 mb-0 text-success">{{ $gamesWon }}</div>
                             <small class="text-muted">{{ __('messages.wins') }}</small>
@@ -32,18 +39,13 @@
                             <small class="text-muted">{{ __('messages.win_rate') }}</small>
                         </div>
                     </div>
-                    @if($team->championships_count > 0)
-                        <div class="mt-3 text-muted">{{ $team->championships_count }} {{ $team->championships_count > 1 ? __('messages.titles') : __('messages.title') }}</div>
-                    @else
-                        <div class="mt-3 text-danger">0 {{ __('messages.titles') }}</div>
-                    @endif
                 </div>
             </div>
 
-            <div class="card mt-4 shadow">
-                <div class="card-header">
-                    <h5 class="mb-0">Informações</h5>
-                </div>
+                <div class="card mt-4 shadow">
+                    <div class="card-header">
+                        <h5 class="mb-0">{{ __('messages.information') }}</h5>
+                    </div>
                 <div class="card-body">
                     <ul class="list-unstyled mb-0">
                         <li class="mb-2"><strong>{{ __('messages.division') }}:</strong> {{ $team->division }}</li>
@@ -57,6 +59,28 @@
         </div>
 
         <div class="col-lg-8">
+            <div class="card mb-4 shadow">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="bi bi-people"></i> {{ __('messages.current_roster') }}</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        @forelse($roster as $player)
+                            <div class="col-md-6 mb-3">
+                                <div>
+                                    <a href="{{ route('jogadores.show', $player) }}"
+                                       class="text-decoration-none fw-bold">{{ $player->full_name }}</a>
+                                    <br>
+                                    <small class="text-muted">{{ $player->position }} • #{{ $player->jersey_number ?? '-' }}</small>
+                                </div>
+                            </div>
+                        @empty
+                            <div class="col-12 text-muted">{{ __('messages.no_players') }}</div>
+                        @endforelse
+                    </div>
+                </div>
+            </div>
+
             @if(isset($recentGames) && $recentGames->count() > 0)
                 <div class="card shadow">
                     <div class="card-header">
@@ -69,13 +93,13 @@
                                 $homeWon = $game->home_score > $game->away_score;
                                 $winnerTeam = $homeWon ? $game->homeTeam : $game->awayTeam;
                                 $loserTeam = $homeWon ? $game->awayTeam : $game->homeTeam;
-                                $gameHour = (int) date('H', strtotime($game->game_date));
-                                $periodLabel = $gameHour < 17 ? 'Tarde' : 'Noite';
+$gameHour = (int) date('H', strtotime($game->game_date));
+                                 $periodLabel = $gameHour < 17 ? __('messages.afternoon') : __('messages.evening');
                             @endphp
                             <div class="border-bottom pb-3 mb-3 {{ $loop->last ? 'border-0 mb-0 pb-0' : '' }}">
                                 <div class="d-flex justify-content-between align-items-center mb-2">
                                     <div>
-                                        <span class="badge bg-{{ $homeWon ? 'success' : 'danger' }}">{{ $homeWon ? 'Vitória' : 'Derrota' }}</span>
+                                        <span class="badge bg-{{ $homeWon ? 'success' : 'danger' }}">{{ $homeWon ? __('messages.victory') : __('messages.defeat') }}</span>
                                         <strong class="ms-2">{{ $game->homeTeam->name }} {{ $game->home_score }} - {{ $game->away_score }} {{ $game->awayTeam->name }}</strong>
                                     </div>
                                     <small class="text-muted">

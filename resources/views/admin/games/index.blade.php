@@ -31,16 +31,10 @@
                             <tr>
                                 <td>{{ $game->game_date->format('d/m/Y H:i') }}</td>
                                 <td>
-                                    <div class="d-flex align-items-center">
-                                        <img src="{{ $game->homeTeam->logo }}" alt="" style="width:25px;" class="me-2">
-                                        {{ $game->homeTeam->name }}
-                                    </div>
+                                    {{ $game->homeTeam->name }}
                                 </td>
                                 <td>
-                                    <div class="d-flex align-items-center">
-                                        <img src="{{ $game->awayTeam->logo }}" alt="" style="width:25px;" class="me-2">
-                                        {{ $game->awayTeam->name }}
-                                    </div>
+                                    {{ $game->awayTeam->name }}
                                 </td>
                                 <td>
                                     @if($game->isScheduled())

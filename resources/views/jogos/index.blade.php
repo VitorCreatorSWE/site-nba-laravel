@@ -51,7 +51,6 @@
 
                             <div class="d-flex align-items-center justify-content-between">
                                 <div class="text-center flex-fill">
-                                    <img src="{{ $game->homeTeam->logo }}" alt="{{ $game->homeTeam->name }}" class="mb-2" style="width:60px;">
                                     <div class="fw-bold">{{ $game->homeTeam->abbreviation }}</div>
                                     <div class="text-muted small">{{ $game->homeTeam->name }}</div>
                                     @if($game->isLive() || $game->isFinished())
@@ -62,7 +61,6 @@
                                     <span class="badge bg-dark rounded-pill px-3 py-2">VS</span>
                                 </div>
                                 <div class="text-center flex-fill">
-                                    <img src="{{ $game->awayTeam->logo }}" alt="{{ $game->awayTeam->name }}" class="mb-2" style="width:60px;">
                                     <div class="fw-bold">{{ $game->awayTeam->abbreviation }}</div>
                                     <div class="text-muted small">{{ $game->awayTeam->name }}</div>
                                     @if($game->isLive() || $game->isFinished())

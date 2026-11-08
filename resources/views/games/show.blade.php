@@ -73,27 +73,27 @@
                                         <td class="text-center fw-bold">{{ $awayStats->points ?? '-' }}</td>
                                     </tr>
                                     <tr>
-                                        <td>Rebotes</td>
+                                        <td>{{ __("messages.rebounds") }}</td>
                                         <td class="text-center">{{ $homeStats->rebounds ?? '-' }}</td>
                                         <td class="text-center">{{ $awayStats->rebounds ?? '-' }}</td>
                                     </tr>
                                     <tr>
-                                        <td>Assistências</td>
+                                        <td>AssistÃªncias</td>
                                         <td class="text-center">{{ $homeStats->assists ?? '-' }}</td>
                                         <td class="text-center">{{ $awayStats->assists ?? '-' }}</td>
                                     </tr>
                                     <tr>
-                                        <td>Roubos de Bola</td>
+                                        <td>{{ __("messages.steals") }}</td>
                                         <td class="text-center">{{ $homeStats->steals ?? '-' }}</td>
                                         <td class="text-center">{{ $awayStats->steals ?? '-' }}</td>
                                     </tr>
                                     <tr>
-                                        <td>Bloqueios</td>
+                                        <td>{{ __("messages.blocks") }}</td>
                                         <td class="text-center">{{ $homeStats->blocks ?? '-' }}</td>
                                         <td class="text-center">{{ $awayStats->blocks ?? '-' }}</td>
                                     </tr>
                                     <tr>
-                                        <td>Perdas de Bola</td>
+                                        <td>{{ __("messages.turnovers") }}</td>
                                         <td class="text-center">{{ $homeStats->turnovers ?? '-' }}</td>
                                         <td class="text-center">{{ $awayStats->turnovers ?? '-' }}</td>
                                     </tr>
@@ -112,8 +112,8 @@
                 </div>
                 <div class="card-body text-center">
                     <img src="{{ $game->homeTeam->logo }}" class="mb-3" style="width:80px;" alt="">
-                    <p><strong>Conferência:</strong> {{ $game->homeTeam->conference }}</p>
-                    <p><strong>Divisão:</strong> {{ $game->homeTeam->division }}</p>
+                    <p><strong>ConferÃªncia:</strong> {{ $game->homeTeam->conference }}</p>
+                    <p><strong>DivisÃ£o:</strong> {{ $game->homeTeam->division }}</p>
                     <p><strong>Arena:</strong> {{ $game->homeTeam->arena_name ?? '-' }}</p>
                 </div>
             </div>
@@ -124,8 +124,8 @@
                 </div>
                 <div class="card-body text-center">
                     <img src="{{ $game->awayTeam->logo }}" class="mb-3" style="width:80px;" alt="">
-                    <p><strong>Conferência:</strong> {{ $game->awayTeam->conference }}</p>
-                    <p><strong>Divisão:</strong> {{ $game->awayTeam->division }}</p>
+                    <p><strong>ConferÃªncia:</strong> {{ $game->awayTeam->conference }}</p>
+                    <p><strong>DivisÃ£o:</strong> {{ $game->awayTeam->division }}</p>
                     <p><strong>Arena:</strong> {{ $game->awayTeam->arena_name ?? '-' }}</p>
                 </div>
             </div>

@@ -15,7 +15,6 @@
                             <th>Autor</th>
                             <th>Post</th>
                             <th>Comentário</th>
-                            <th>Status</th>
                             <th>Data</th>
                             <th>Ações</th>
                         </tr>
@@ -26,13 +25,6 @@
                                 <td>{{ $comment->user->name }}</td>
                                 <td>{{ Str::limit($comment->post->title ?? '-', 30) }}</td>
                                 <td>{{ Str::limit($comment->content, 80) }}</td>
-                                <td>
-                                    @if($comment->approved)
-                                        <span class="badge bg-success">Aprovado</span>
-                                    @else
-                                        <span class="badge bg-warning text-dark">Pendente</span>
-                                    @endif
-                                </td>
                                 <td>{{ $comment->created_at->format('d/m/Y H:i') }}</td>
                                 <td>
                                     @if(!$comment->approved)
@@ -54,7 +46,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="text-center text-muted">Nenhum comentário encontrado.</td>
+                                <td colspan="5" class="text-center text-muted">Nenhum comentário encontrado.</td>
                             </tr>
                         @endforelse
                     </tbody>

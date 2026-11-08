@@ -75,7 +75,9 @@
                                         {{ $post->status === 'published' ? 'Publicado' : 'Rascunho' }}
                                     </span>
                                 </td>
-                                <td>{{ $post->created_at->format('d/m/Y') }}</td>
+                                {{-- published_at é a data do jogo; created_at seria a data em que o
+                                     post foi gerado, que não é o que o administrador espera ver. --}}
+                                <td>{{ ($post->published_at ?? $post->created_at)->format('d/m/Y') }}</td>
                                 <td>
                                     <a href="{{ route('admin.posts.edit', $post) }}" class="btn btn-sm btn-outline-primary">
                                         <i class="bi bi-pencil"></i>

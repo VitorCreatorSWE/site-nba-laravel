@@ -10,7 +10,9 @@ class AdminUserController extends Controller
 {
     public function index()
     {
-        $users = User::latest()->paginate(15);
+        $users = User::orderByRaw("CASE WHEN role = 'admin' THEN 0 ELSE 1 END")
+            ->latest()
+            ->paginate(15);
 
         return view('admin.users.index', compact('users'));
     }
@@ -30,6 +32,10 @@ class AdminUserController extends Controller
 
     public function destroy(User $user)
     {
+        if ($user->role === 'admin') {
+            return back()->with('error', __('messages.cannot_delete_admin'));
+        }
+
         if ($user->id === auth()->id()) {
             return back()->with('error', 'Você não pode excluir sua própria conta.');
         }
